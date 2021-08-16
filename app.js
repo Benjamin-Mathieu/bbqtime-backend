@@ -4,30 +4,25 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-// Database
-const { Sequelize } = require('sequelize');
-
-const sequelize = new Sequelize("bbqtime", "root", "root", {
-  dialect: "mysql",
-  host: "localhost"
-});
-
-// Testing the connection
-try {
-  sequelize.authenticate();
-  console.log('Connection has been established successfully');
-  sequelize.query("SELECT * FROM `users` WHERE 1").then(([results, metadata]) => {
-    console.log(results);
-  })
-} catch (error) {
-  console.error('Unable to connect to the database', error);
-}
-
 // Routes
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 
 const app = express();
+
+// Database
+const db = require("./config/database");
+
+// Testing the connection to the database
+try {
+  db.authenticate();
+  console.log('Connection has been established successfully');
+  db.query("SELECT * FROM `users` WHERE 1").then(([results, metadata]) => {
+    console.log(results);
+  })
+} catch (error) {
+  console.error('Unable to connect to the database', error);
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
