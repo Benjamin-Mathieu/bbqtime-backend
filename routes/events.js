@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
-const User = require('../models/User');
+const Event = require('../models/Event');
 
-/* GET users listing. */
+/* GET events */
 router.get('/', (req, res) => {
-  User.findAll()
-    .then(users => {
-      console.log(users);
+  Event.findAll()
+    .then(events => {
+      console.log(events);
       res.sendStatus(200);
     })
     .catch(err => console.log(err))
