@@ -55,9 +55,23 @@ const user_post = (req, res) => {
         });
 }
 
+// Delete user
+const user_delete = (req, res) => {
+
+    User.destroy({
+        where: {
+          id: req.params.id
+        }
+    })
+        .then(deleted_user => {
+            res.status(200).send({"message": "User deleted"})
+        })
+        .catch(err => console.log(err));
+}
 
 module.exports = {
     user_listing,
     user_get,
-    user_post
+    user_post,
+    user_delete
 }
