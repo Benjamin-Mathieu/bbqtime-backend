@@ -19,7 +19,7 @@ const user_get = (req, res) => {
     User.findByPk(user_id)
         .then(user => {
             console.log(`${user.id} ${user.email} ${user.name} ${user.firstname} ${user.phone}`);
-            res.send(
+            res.status(200).send(
                 {
                     id: user.id,
                     email: user.email,
@@ -35,9 +35,26 @@ const user_get = (req, res) => {
 
 // Create user
 const user_post = (req, res) => {
-    console.log(req.body);
-    res.sendStatus(201);
+    // Create new user if not find
+    User.findOrCreate({
+        where: { email: req.body.email },
+        defaults: {
+            email: req.body.email,
+            name: req.body.name,
+            firstname: req.body.firstname,
+            phone: req.body.phone,
+            password: req.body.password
+        }
+    })
+        .then(new_user => {
+            res.status(201).send({ "message": "Account has been created" });
+        })
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        });
 }
+
 
 module.exports = {
     user_listing,
