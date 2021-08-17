@@ -1,5 +1,6 @@
 const User = require('../models/User');
 
+// GET all users
 const user_listing = (req, res) => {
     User.findAll()
     .then(users => {
@@ -12,7 +13,7 @@ const user_listing = (req, res) => {
     .catch(err => console.log(err))
 }
 
-// Find a user
+// GET one user
 const user_get = (req, res) => {
     const user_id = req.params.id;
 
@@ -28,12 +29,11 @@ const user_get = (req, res) => {
                     phone: user.phone
                 }
             )
-            res.sendStatus(200);
         })
         .catch(err => console.log(err))
 }
 
-// Create user
+// POST new user
 const user_post = (req, res) => {
     // Create new user if not find
     User.findOrCreate({
@@ -55,9 +55,8 @@ const user_post = (req, res) => {
         });
 }
 
-// Delete user
+// DELETE one user
 const user_delete = (req, res) => {
-
     User.destroy({
         where: {
           id: req.params.id
