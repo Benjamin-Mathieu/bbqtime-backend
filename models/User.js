@@ -1,7 +1,14 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
+const Event = require('./Event');
 
 const User = db.define('user', {
+    id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true
+    },
     email: {
         type: Sequelize.STRING
     },
@@ -18,5 +25,7 @@ const User = db.define('user', {
         type: Sequelize.CHAR
     }
 });
+
+// User.hasMany(Event);
 
 module.exports = User;
