@@ -1,16 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/database');
-const Event = require('../models/Event');
+const eventController = require('../controllers/eventController');
 
 /* GET events */
-router.get('/', (req, res) => {
-  Event.findAll()
-    .then(events => {
-      console.log(events);
-      res.sendStatus(200);
-    })
-    .catch(err => console.log(err))
-});
+router.get('/', eventController.event_listing);
+
+// Add event
+// router.post('/',);
 
 module.exports = router;

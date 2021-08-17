@@ -6,6 +6,8 @@ const logger = require('morgan');
 
 // Routes
 const indexRouter = require('./routes/index');
+const categoriesRouter = require('./routes/categories');
+const ordersRouter = require('./routes/orders');
 const usersRouter = require('./routes/users');
 const eventsRouter = require('./routes/events');
 
@@ -18,9 +20,9 @@ const db = require("./config/database");
 try {
   db.authenticate();
   console.log('Connection has been established successfully');
-  db.query("SELECT * FROM `users` WHERE 1").then(([results, metadata]) => {
-    console.log(results);
-  })
+  // db.query("SELECT * FROM `users` WHERE 1").then(([results, metadata]) => {
+  //   console.log(results);
+  // })
 } catch (error) {
   console.error('Unable to connect to the database', error);
 }
@@ -37,6 +39,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use('/', indexRouter);
+app.use('/categories', categoriesRouter);
+app.use('/orders', ordersRouter);
 app.use('/users', usersRouter);
 app.use('/events', eventsRouter);
 
