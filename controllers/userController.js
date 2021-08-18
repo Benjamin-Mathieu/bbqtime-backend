@@ -1,14 +1,17 @@
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
 
 // GET all users
 const user_listing = (req, res) => {
     User.findAll()
     .then(users => {
 
+        let users_array = [];
         users.forEach(user => {
-            console.log(`${user.id} ${user.email} ${user.name} ${user.firstname} ${user.phone}`)
+            users_array.push(user);
         });
-        res.sendStatus(200);
+        res.status(200).send({users : users_array});
     })
     .catch(err => console.log(err))
 }
@@ -68,9 +71,27 @@ const user_delete = (req, res) => {
         .catch(err => console.log(err));
 }
 
+//Authenticate user
+const user_login = (req, res) => {
+    // const user_email = req.body.email;
+    // const user_password = req.body.password;
+
+
+    const auth = User.findOne({ where: { email: req.body.email } })
+        .then(user => {
+            if (user.password != req.body.password) {
+                res.status(401).send({ "error": "Wrong password" });
+            } else {
+                res.status(200).send({ "message": "User connected" })
+            }
+        })
+        .catch(err => console.log(err))
+}
+
 module.exports = {
     user_listing,
     user_get,
     user_post,
-    user_delete
+    user_delete,
+    user_login
 }
