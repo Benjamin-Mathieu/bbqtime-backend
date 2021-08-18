@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
+const Event = require('./Event');
 const Categorie = require('./Categorie');
 
 const Plat = db.define('plat', {
