@@ -56,7 +56,7 @@ const order_delete = (req, res) => {
             res.status(200).send({"message": "Order deleted"})
         })
         .catch(err => console.log(err));
-  }
+}
 
 module.exports = {
     order_listing,

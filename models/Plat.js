@@ -38,8 +38,8 @@ const Plat = db.define('plat', {
     }
 });
 
-Plat.belongsTo(Event);
-Plat.hasOne(Categorie);
+// Plat.belongsTo(Event);
+// Plat.hasOne(Categorie);
 
 
 module.exports = Plat;
