@@ -33,7 +33,29 @@ const event_get = (req, res) => {
 
 // POST new event
 const event_post = (req, res) => {
-  
+  Event.create({
+    user_id: req.body.user_id,
+    name: req.body.name,
+    password: req.body.password
+  })
+    .then(new_event => {
+      res.status(201).send({"message" : "test"})
+    })
+    .catch(err => console.log(err));
+}
+
+// PUT one event
+const event_put = (req, res) => {
+  Event.update({ name: req.body.name },
+    {
+      where: {
+        id: req.params.id
+      }
+    })
+      .then(updated_event => {
+          res.status(200).send({"message": "Event updated"})
+      })
+      .catch(err => console.log(err));
 }
 
 // DELETE one event
@@ -53,5 +75,6 @@ module.exports = {
   event_listing,
   event_get,
   event_post,
+  event_put,
   event_delete
 }
