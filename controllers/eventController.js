@@ -39,7 +39,7 @@ const event_post = (req, res) => {
     password: req.body.password
   })
     .then(new_event => {
-      res.status(201).send({"message" : "test"})
+      res.status(201).send({"message" : "Event created"})
     })
     .catch(err => console.log(err));
 }

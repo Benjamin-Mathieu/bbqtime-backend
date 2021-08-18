@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
+const Event = require('./Event');
+const User = require('./User');
 
 const Order = db.define('order', {
     id: {
@@ -9,10 +11,18 @@ const Order = db.define('order', {
         primaryKey: true
     },
     event_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER,
+        references: {         // Order belongsTo Event 1:1
+            model: 'event',
+            key: 'id'
+        }
     },
     user_id: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER,
+        references: {         // Order belongsTo User 1:1
+            model: 'user',
+            key: 'id'
+        }
     },
     cost: {
         type: Sequelize.STRING
@@ -21,5 +31,8 @@ const Order = db.define('order', {
         type: Sequelize.DATE
     }
 });
+
+// Order.belongsTo(Event);
+// Order.belongsTo(User);
 
 module.exports = Order;
