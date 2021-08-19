@@ -1,4 +1,6 @@
 const Plat = require('../models/Plat');
+const Event = require('../models/Event');
+const jwt = require('jsonwebtoken');
 
 const plat_listing = (req, res) => {
     Plat.findAll()
@@ -36,32 +38,50 @@ const plat_get = (req, res) => {
 
 // POST new plat
 const plat_post = (req, res) => {
-    Plat.create({
-        libelle: req.body.libelle,
-        event_id: req.body.event_id,
-        photo_url: req.body.photo_url,
-        user_id: req.body.user_id,
-        quantity: req.body.quantity,
-        price: req.body.price,
-        category_id: req.body.category_id
-    })
-      .then(new_plat => {
-        res.status(201).send({"message" : "Plat created"})
-      })
-      .catch(err => console.log(err));
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded_token = jwt.decode(token);
+
+    Event.findByPk(req.body.event_id)
+        .then(result => {
+            // Check if user is event creator
+            if (result.user_id === decoded_token.id) {
+                Plat.create({
+                    libelle: req.body.libelle,
+                    event_id: req.body.event_id,
+                    photo_url: req.body.photo_url,
+                    user_id: decoded_token.id,
+                    quantity: req.body.quantity,
+                    price: req.body.price,
+                    category_id: req.body.category_id
+                })
+                .then(new_plat => {
+                    res.status(201).send({"message" : "Plat added to event"})
+                })
+                .catch(err => console.log(err));   
+            } else {
+                res.status(401).send({ "message": "User isn't the creathor of the event" });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "message": "Something went wrong" });
+        });  
 }
 
 // DELETE one plat
 const plat_delete = (req, res) => {
     Plat.destroy({
-        where: {
-          id: req.params.id
-        }
-    })
+            where: {
+                id: req.params.id
+            }
+        })
         .then(deleted_plat => {
             res.status(200).send({"message": "Plat deleted"})
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            console.log(err);
+            res.status(401).send({ "message": "User isn't the creathor of the event" });
+        })
 }
 
 module.exports = {
