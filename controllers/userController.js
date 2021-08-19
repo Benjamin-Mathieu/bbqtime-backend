@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-
+const bcrypt = require('bcrypt');
 
 // GET all users
 const user_listing = (req, res) => {
@@ -38,7 +38,11 @@ const user_get = (req, res) => {
 
 // POST new user
 const user_post = (req, res) => {
-    // Create new user if not find
+
+    const saltRounds = 10;
+    const hash = bcrypt.hashSync(req.body.password, saltRounds);
+    
+    // Create new user if not find in db
     User.findOrCreate({
         where: { email: req.body.email },
         defaults: {
@@ -46,15 +50,15 @@ const user_post = (req, res) => {
             name: req.body.name,
             firstname: req.body.firstname,
             phone: req.body.phone,
-            password: req.body.password
+            password: hash
         }
     })
-        .then(new_user => {
-            res.status(201).send({ "message": "Account has been created" });
+        .then(result => {
+                res.status(201).send({ "message": "Account has been created" });
         })
         .catch(err => {
             console.log(err);
-            res.sendStatus(500);
+            res.status(500).send({ "error": "Something went wrong" });
         });
 }
 
@@ -65,7 +69,7 @@ const user_delete = (req, res) => {
           id: req.params.id
         }
     })
-        .then(deleted_user => {
+        .then(result => {
             res.status(200).send({"message": "User deleted"})
         })
         .catch(err => console.log(err));
@@ -73,19 +77,33 @@ const user_delete = (req, res) => {
 
 //Authenticate user
 const user_login = (req, res) => {
-    // const user_email = req.body.email;
-    // const user_password = req.body.password;
 
-
-    const auth = User.findOne({ where: { email: req.body.email } })
+    User.findOne({ where: { email: req.body.email } })
         .then(user => {
-            if (user.password != req.body.password) {
+            if (user === null) {
+                res.status(400).send({ "message": "User not found" });
+            }
+            if (!bcrypt.compareSync(req.body.password, user.password)) {
                 res.status(401).send({ "error": "Wrong password" });
-            } else {
-                res.status(200).send({ "message": "User connected" })
+            }
+            else {
+                const token = jwt.sign({
+                    id: user.id,
+                    name: user.name,
+                    firstname: user.firstname,
+                    email: user.email,
+                }, process.env.JWT_KEY, function (err, token) {
+                    res.status(200).send({
+                        "message": "User connected",
+                        "token" : token
+                    })
+                });
             }
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "message": "Something went wrong" });
+        })
 }
 
 module.exports = {

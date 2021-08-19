@@ -1,0 +1,5 @@
+{
+    "env" : {
+        "JWT_KEY" : "$2b$10$vkYbcQLWauaherb277fwzO2RAjccL2YY8/75oe.8BhOhglZK4L9rm"
+    }
+}
