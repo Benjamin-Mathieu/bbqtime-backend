@@ -1,4 +1,5 @@
 const Event = require('../models/Event');
+const jwt = require('jsonwebtoken');
 
 // GET all events
 const event_listing = (req, res) => {
@@ -33,8 +34,12 @@ const event_get = (req, res) => {
 
 // POST new event
 const event_post = (req, res) => {
+
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded_token = jwt.decode(token);
+
   Event.create({
-    user_id: req.body.user_id,
+    user_id: decoded_token.id,
     name: req.body.name,
     password: req.body.password
   })

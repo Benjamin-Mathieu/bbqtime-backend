@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const jwt = require('jsonwebtoken');
 
 const order_listing = (req, res) => {
     Order.findAll()
@@ -33,9 +34,12 @@ const order_get = (req, res) => {
 
 // POST new order
 const order_post = (req, res) => {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded_token = jwt.decode(token);
+
     Order.create({
         event_id: req.body.event_id,
-        user_id: req.body.user_id,
+        user_id: decoded_token.id,
         cost: req.body.cost,
         heure: req.body.heure
     })
