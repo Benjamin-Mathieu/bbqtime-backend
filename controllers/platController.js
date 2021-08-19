@@ -80,7 +80,7 @@ const plat_delete = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(401).send({ "message": "User isn't the creathor of the event" });
+            res.status(500).send({ "message": "Something went wrong" });
         })
 }
 

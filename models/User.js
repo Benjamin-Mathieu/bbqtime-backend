@@ -26,6 +26,10 @@ const User = db.define('user', {
     }
 });
 
+User.associate = function(models) {
+    User.hasMany(models.Event)
+};
+
 // User.hasMany(Event);
 
 module.exports = User;

@@ -1,6 +1,18 @@
 const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 
+const test = (req, res) => {
+  Event.findOne({
+    where: {name: 'Chalet'}, include: 'user'
+  })
+    .then(findedUser => {
+      console.log(findedUser  )
+    })
+    .catch((err) => {
+      console.log("Error while find user : ", err)
+    })
+}
+
 // GET all events
 const event_listing = (req, res) => {
     Event.findAll()
@@ -77,6 +89,7 @@ const event_delete = (req, res) => {
 }
 
 module.exports = {
+  test,
   event_listing,
   event_get,
   event_post,
