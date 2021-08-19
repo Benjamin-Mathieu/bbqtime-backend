@@ -7,7 +7,7 @@ const order_listing = (req, res) => {
         orders.forEach(event => {
           orders_array.push(event);
         });
-        res.status(200).send({ "events": orders_array });
+        res.status(200).send({ "orders": orders_array });
     })
     .catch(err => console.log(err))
 }
