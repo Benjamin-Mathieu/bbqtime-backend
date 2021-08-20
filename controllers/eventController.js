@@ -3,14 +3,16 @@ const jwt = require('jsonwebtoken');
 
 const test = (req, res) => {
   Event.findOne({
-    where: {name: 'Chalet'}, include: 'user'
+    where: { name: 'Chalet' }, include: 'user'
   })
     .then(findedUser => {
-      console.log(findedUser)
+      console.log(findedUser);
+      res.status(200).send({ "message": findedUser.user });
     })
     .catch((err) => {
-      console.log("Error while find user : ", err)
-    })
+      console.log("Error while find user : ", err);
+      res.sendStatus(500);
+    });
 }
 
 // GET all events

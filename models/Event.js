@@ -9,13 +9,13 @@ const Event = db.define('event', {
         autoIncrement: true,
         primaryKey: true
     },
-    user_id: {
-        type: Sequelize.INTEGER,
-        references: {         // Event belongsTo User 1:1
-            model: 'user',
-            key: 'id'
-        }
-    },
+    // user_id: {
+    //     type: Sequelize.INTEGER,
+    //     references: {         // Event belongsTo User 1:1
+    //         model: 'user',
+    //         key: 'id'
+    //     }
+    // },
     name: {
         type: Sequelize.STRING
     },
@@ -24,7 +24,7 @@ const Event = db.define('event', {
     }
 });
 
-// Event.belongsTo(User);
+Event.belongsTo(User, {foreignKey: 'user_id'});
 
 // Event.associate = function(models) {
 //     Event.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
