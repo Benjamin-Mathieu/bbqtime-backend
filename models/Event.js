@@ -26,8 +26,8 @@ const Event = db.define('event', {
 
 // Event.belongsTo(User);
 
-Event.associate = function(models) {
-    Event.belongsTo(models.User, {foreignKey: 'user_id', as: 'user'})
-  };
+// Event.associate = function(models) {
+//     Event.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+// };
 
 module.exports = Event;

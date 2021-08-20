@@ -6,7 +6,7 @@ const test = (req, res) => {
     where: {name: 'Chalet'}, include: 'user'
   })
     .then(findedUser => {
-      console.log(findedUser  )
+      console.log(findedUser)
     })
     .catch((err) => {
       console.log("Error while find user : ", err)

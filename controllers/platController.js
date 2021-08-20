@@ -4,15 +4,18 @@ const jwt = require('jsonwebtoken');
 
 const plat_listing = (req, res) => {
     Plat.findAll()
-    .then(plats => {
-        let plats_array = [];
-        plats.forEach(plat => {
-          plats_array.push(plat);
+        .then(plats => {
+            let plats_array = [];
+            plats.forEach(plat => {
+                plats_array.push(plat);
+            });
+            res.status(200).send({ "plats": plats_array });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "message": "Something went wrong" });
         });
-        res.status(200).send({ "plats": plats_array });
-    })
-    .catch(err => console.log(err))
-}
+};
 
 // GET one plat
 const plat_get = (req, res) => {
@@ -33,11 +36,16 @@ const plat_get = (req, res) => {
                 }
             )
         })
-        .catch(err => console.log(err))
-}
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "message": "Something went wrong" });
+        });
+};
 
 // POST new plat
 const plat_post = (req, res) => {
+    
+    // Collect users information
     const token = req.headers.authorization.split(" ")[1];
     const decoded_token = jwt.decode(token);
 
@@ -54,10 +62,10 @@ const plat_post = (req, res) => {
                     price: req.body.price,
                     category_id: req.body.category_id
                 })
-                .then(new_plat => {
-                    res.status(201).send({"message" : "Plat added to event"})
-                })
-                .catch(err => console.log(err));   
+                    .then(new_plat => {
+                        res.status(201).send({ "message": "Plat added to event" })
+                    })
+                    .catch(err => console.log(err));
             } else {
                 res.status(401).send({ "message": "User isn't the creathor of the event" });
             }
@@ -65,28 +73,46 @@ const plat_post = (req, res) => {
         .catch(err => {
             console.log(err);
             res.status(500).send({ "message": "Something went wrong" });
-        });  
+        });
+};
+
+// UPDATE one plat
+const plat_put = (req, res) => {
+    Plat.update({
+        libelle: req.body.libelle,
+        photo_url: req.body.photo_url,
+        quantity: req.body.quantity,
+        price: req.body.price
+    }, { where: { id: req.params.id } })
+    .then(result => {
+      res.status(200).send({ "message": "Plat updated" });
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "message": "Something went wrong" });
+    })
 }
 
 // DELETE one plat
 const plat_delete = (req, res) => {
     Plat.destroy({
-            where: {
-                id: req.params.id
-            }
-        })
+        where: {
+            id: req.params.id
+        }
+    })
         .then(deleted_plat => {
-            res.status(200).send({"message": "Plat deleted"})
+            res.status(200).send({ "message": "Plat deleted" })
         })
         .catch(err => {
             console.log(err);
             res.status(500).send({ "message": "Something went wrong" });
         })
-}
+};
 
 module.exports = {
     plat_listing,
     plat_get,
     plat_post,
+    plat_put,
     plat_delete
 }
