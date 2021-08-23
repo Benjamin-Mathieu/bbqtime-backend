@@ -29,7 +29,7 @@ const OrderPlats = db.define('order', {
     }
 });
 
-// OrderPlats.belongsTo(Plat);
-// OrderPlats.belongsTo(Order);
+OrderPlats.belongsTo(Plat, { foreignKey: 'plat_id' });
+OrderPlats.belongsTo(Order, { foreignKey: 'order_id' });
 
 module.exports = OrderPlats;

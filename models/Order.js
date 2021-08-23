@@ -32,7 +32,7 @@ const Order = db.define('order', {
     }
 });
 
-// Order.belongsTo(Event);
-// Order.belongsTo(User);
+Order.belongsTo(Event, { foreignKey: 'event_id' });
+Order.belongsTo(User, { foreignKey: 'user_id' });
 
 module.exports = Order;

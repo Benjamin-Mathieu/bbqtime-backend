@@ -38,8 +38,7 @@ const Plat = db.define('plat', {
     }
 });
 
-// Plat.belongsTo(Event);
-// Plat.hasOne(Categorie);
-
+Plat.belongsTo(Event, { foreignKey: 'event_id' });
+Plat.belongsTo(Categorie, { foreignKey: 'category_id' });
 
 module.exports = Plat;
