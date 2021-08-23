@@ -5,15 +5,15 @@ const bcrypt = require('bcrypt');
 // GET all users
 const user_listing = (req, res) => {
     User.findAll()
-    .then(users => {
+        .then(users => {
 
-        let users_array = [];
-        users.forEach(user => {
-            users_array.push(user);
-        });
-        res.status(200).send({users : users_array});
-    })
-    .catch(err => console.log(err))
+            let users_array = [];
+            users.forEach(user => {
+                users_array.push(user);
+            });
+            res.status(200).send({ users: users_array });
+        })
+        .catch(err => console.log(err))
 }
 
 // GET one user
@@ -22,7 +22,6 @@ const user_get = (req, res) => {
 
     User.findByPk(user_id)
         .then(user => {
-            console.log(`${user.id} ${user.email} ${user.name} ${user.firstname} ${user.phone}`);
             res.status(200).send(
                 {
                     id: user.id,
@@ -41,7 +40,7 @@ const user_post = (req, res) => {
 
     const saltRounds = 10;
     const hash = bcrypt.hashSync(req.body.password, saltRounds);
-    
+
     // Create new user if not find in db
     User.findOrCreate({
         where: { email: req.body.email },
@@ -54,7 +53,7 @@ const user_post = (req, res) => {
         }
     })
         .then(result => {
-                res.status(201).send({ "message": "Account has been created" });
+            res.status(201).send({ "message": "Account has been created" });
         })
         .catch(err => {
             console.log(err);
@@ -66,18 +65,17 @@ const user_post = (req, res) => {
 const user_delete = (req, res) => {
     User.destroy({
         where: {
-          id: req.params.id
+            id: req.params.id
         }
     })
         .then(result => {
-            res.status(200).send({"message": "User deleted"})
+            res.status(200).send({ "message": "User deleted" })
         })
         .catch(err => console.log(err));
 }
 
 //Authenticate user
 const user_login = (req, res) => {
-
     User.findOne({ where: { email: req.body.email } })
         .then(user => {
             if (user === null) {
@@ -95,7 +93,7 @@ const user_login = (req, res) => {
                 }, process.env.JWT_KEY, function (err, token) {
                     res.status(200).send({
                         "message": "User connected",
-                        "token" : token
+                        "token": token
                     })
                 });
             }

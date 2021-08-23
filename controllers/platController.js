@@ -20,7 +20,7 @@ const plat_listing = (req, res) => {
 // GET one plat
 const plat_get = (req, res) => {
     const plat_id = req.params.id;
-  
+
     Plat.findByPk(plat_id)
         .then(plat => {
             res.status(200).send(
@@ -44,7 +44,7 @@ const plat_get = (req, res) => {
 
 // POST new plat
 const plat_post = (req, res) => {
-    
+
     // Collect users information
     const token = req.headers.authorization.split(" ")[1];
     const decoded_token = jwt.decode(token);
@@ -84,13 +84,13 @@ const plat_put = (req, res) => {
         quantity: req.body.quantity,
         price: req.body.price
     }, { where: { id: req.params.id } })
-    .then(result => {
-      res.status(200).send({ "message": "Plat updated" });
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).send({ "message": "Something went wrong" });
-    })
+        .then(result => {
+            res.status(200).send({ "message": "Plat updated" });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "message": "Something went wrong" });
+        })
 }
 
 // DELETE one plat
