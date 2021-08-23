@@ -1,20 +1,22 @@
 const OrderPlats = require('../models/OrderPlats');
 const jwt = require('jsonwebtoken');
+const Order = require('../models/Order');
+const Plat = require('../models/Plat');
 
-const test = (req, res) => {
-    OrderPlats.findAll()
-        .then(tests => {
+const orderplats_listing = (req, res) => {
+    OrderPlats.findAll({ include: [Order, Plat] })
+        .then(orderplats => {
 
-            let test_array = [];
-            tests.forEach(test => {
-                test_array.push(test);
+            let orderplats_array = [];
+            orderplats.forEach(res => {
+                orderplats_array.push(res);
             });
-            res.status(200).send({ "test": test_array });
+            res.status(200).send({ "order-plats": orderplats_array });
         })
         .catch(err => console.log(err))
 }
 
-const orderplat_post = (req, res) => {
+const orderplats_post = (req, res) => {
     OrderPlats.create({
         plat_id: req.body.plat_id,
         order_id: req.body.order_id,
@@ -30,6 +32,6 @@ const orderplat_post = (req, res) => {
 }
 
 module.exports = {
-    test,
-    orderplat_post
+    orderplats_listing,
+    orderplats_post
 };
