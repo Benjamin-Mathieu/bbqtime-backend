@@ -3,7 +3,7 @@ const db = require('../config/database');
 const Plat = require('../models/Plat');
 const Order = require('../models/Order');
 
-const OrderPlats = db.define('order', {
+const OrderPlats = db.define('orders_plats', {
     id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -25,7 +25,10 @@ const OrderPlats = db.define('order', {
         }
     },
     quantity: {
-        type: Sequelize.BIGINT
+        type: Sequelize.BIGINT,
+        validate: {
+            isNumeric: true
+        }
     }
 });
 

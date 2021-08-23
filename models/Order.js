@@ -25,10 +25,16 @@ const Order = db.define('order', {
         }
     },
     cost: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            isDecimal: true
+        }
     },
     heure: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        validate: {
+            isAfter: true
+        }
     }
 });
 

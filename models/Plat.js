@@ -11,7 +11,10 @@ const Plat = db.define('plat', {
         primaryKey: true
     },
     libelle: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            isAlpha: true
+        }
     },
     event_id: {
         type: Sequelize.INTEGER,
@@ -24,10 +27,16 @@ const Plat = db.define('plat', {
         type: Sequelize.STRING
     },
     quantity: {
-        type: Sequelize.BIGINT
+        type: Sequelize.BIGINT,
+        validate: {
+            isNumeric: true
+        }
     },
     price: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.DECIMAL,
+        validate: {
+            isDecimal: true
+        }
     },
     category_id: {
         type: Sequelize.INTEGER,

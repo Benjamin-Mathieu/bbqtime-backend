@@ -17,14 +17,20 @@ const Event = db.define('event', {
     //     }
     // },
     name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            isAlpha: true
+        }
     },
     password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            isAlpha: true
+        }
     }
 });
 
-Event.belongsTo(User, {foreignKey: 'user_id'});
+Event.belongsTo(User, { foreignKey: 'user_id' });
 
 // Event.associate = function(models) {
 //     Event.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });

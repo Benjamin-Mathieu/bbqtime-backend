@@ -10,16 +10,25 @@ const User = db.define('user', {
         primaryKey: true
     },
     email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            isEmail: true
+        }
     },
     password: {
         type: Sequelize.STRING
     },
     name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            isAlpha: true
+        }
     },
     firstname: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            isAlpha: true
+        }
     },
     phone: {
         type: Sequelize.CHAR

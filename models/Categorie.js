@@ -9,10 +9,10 @@ const Categorie = db.define('categorie', {
         primaryKey: true
     },
     libelle: {
-        type: Sequelize.STRING
-    },
-    createdAt: {
-        type: Sequelize.DATE
+        type: Sequelize.STRING,
+        validate: {
+            isAlpha: true
+        }
     }
 });
 
