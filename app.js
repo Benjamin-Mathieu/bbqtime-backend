@@ -11,6 +11,7 @@ const ordersRouter = require('./routes/orders');
 const usersRouter = require('./routes/users');
 const eventsRouter = require('./routes/events');
 const platsRouter = require('./routes/plats');
+const orderPlatsRouter = require('./routes/orderplats');
 
 const app = express();
 
@@ -21,9 +22,6 @@ const db = require("./config/database");
 try {
   db.authenticate();
   console.log('Connection has been established successfully');
-  // db.query("SELECT * FROM `users` WHERE 1").then(([results, metadata]) => {
-  //   console.log(results);
-  // })
 } catch (error) {
   console.error('Unable to connect to the database', error);
 }
@@ -45,14 +43,15 @@ app.use('/orders', ordersRouter);
 app.use('/users', usersRouter);
 app.use('/events', eventsRouter);
 app.use('/plats', platsRouter);
+app.use('/order-plats', orderPlatsRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
