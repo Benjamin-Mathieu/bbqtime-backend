@@ -25,14 +25,14 @@ const event_listing = (req, res) => {
   })
     .then(result => {
       if (result === null) {
-        res.status(400).send({ "message": "No events to show" });
+        res.status(400).send({ "error": "No events to show" });
       } else {
-        res.status(200).send({ "message": result });
+        res.status(200).send({ "events": result });
       }
     })
     .catch((err) => {
       console.log("Error while find user : ", err);
-      res.sendStatus(500);
+      res.sendStatus(500).send({ "error": "Something went wrong" });
     });
 }
 
@@ -44,14 +44,19 @@ const event_get = (req, res) => {
     .then(event => {
       res.status(200).send(
         {
-          id: event.id,
-          user_id: event.user_id,
-          name: event.name,
-          password: event.password
+          "event": {
+            id: event.id,
+            user_id: event.user_id,
+            name: event.name,
+            password: event.password
+          }
         }
       )
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
+    });
 }
 
 // POST new event
@@ -68,7 +73,10 @@ const event_post = (req, res) => {
     .then(new_event => {
       res.status(201).send({ "message": "Event created" })
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
+    });
 }
 
 // PUT one event
@@ -82,7 +90,10 @@ const event_put = (req, res) => {
     .then(updated_event => {
       res.status(200).send({ "message": "Event updated" })
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
+    });
 }
 
 // DELETE one event
@@ -95,7 +106,10 @@ const event_delete = (req, res) => {
     .then(deleted_event => {
       res.status(200).send({ "message": "Event deleted" })
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
+    });
 }
 
 module.exports = {

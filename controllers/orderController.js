@@ -3,33 +3,41 @@ const jwt = require('jsonwebtoken');
 
 const order_listing = (req, res) => {
     Order.findAll()
-    .then(orders => {
-        let orders_array = [];
-        orders.forEach(event => {
-          orders_array.push(event);
+        .then(orders => {
+            let orders_array = [];
+            orders.forEach(event => {
+                orders_array.push(event);
+            });
+            res.status(200).send({ "orders": orders_array });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
         });
-        res.status(200).send({ "orders": orders_array });
-    })
-    .catch(err => console.log(err))
 }
 
 // GET one order
 const order_get = (req, res) => {
     const order_id = req.params.id;
-  
+
     Order.findByPk(order_id)
         .then(order => {
             res.status(200).send(
                 {
-                    id: order.id,
-                    event_id: order.event_id,
-                    user_id: order.user_id,
-                    cost: order.cost,
-                    heure: order.heure
+                    "order": {
+                        id: order.id,
+                        event_id: order.event_id,
+                        user_id: order.user_id,
+                        cost: order.cost,
+                        heure: order.heure
+                    }
                 }
             )
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
+        });
 }
 
 // POST new order
@@ -43,23 +51,29 @@ const order_post = (req, res) => {
         cost: req.body.cost,
         heure: req.body.heure
     })
-      .then(new_order => {
-        res.status(201).send({"message" : "Order created"})
-      })
-      .catch(err => console.log(err));
+        .then(new_order => {
+            res.status(201).send({ "message": "Order created" })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
+        });
 }
 
 // DELETE one order
 const order_delete = (req, res) => {
     Order.destroy({
         where: {
-          id: req.params.id
+            id: req.params.id
         }
     })
         .then(deleted_order => {
-            res.status(200).send({"message": "Order deleted"})
+            res.status(200).send({ "message": "Order deleted" })
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
+        });
 }
 
 module.exports = {

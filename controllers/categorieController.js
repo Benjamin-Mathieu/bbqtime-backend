@@ -2,35 +2,38 @@ const Categorie = require('../models/Categorie');
 
 // GET all products
 const categorie_listing = (req, res) => {
-    Categorie.findAll()
-      .then(categories => {
+  Categorie.findAll()
+    .then(categories => {
 
-        let products = [];
-        categories.forEach(categorie => {
-          products.push(categorie.libelle);
-          console.log(products);
-        });
-        res.status(200).send({ "produits": products });
+      let products = [];
+      categories.forEach(categorie => {
+        products.push(categorie.libelle);
+        console.log(products);
+      });
+      res.status(200).send({ "categories": products });
 
     })
-    .catch(err => console.log(err))  
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
+    });
 }
 
 // POST new product
 const categorie_post = (req, res) => {
-  Categorie.findOrCreate({where: { libelle: req.body.libelle }})
+  Categorie.findOrCreate({ where: { libelle: req.body.libelle } })
     .then(new_product => {
-        res.status(201).send({ "message": "Category added" });
+      res.status(201).send({ "message": "Category added" });
     })
     .catch(err => {
-        console.log(err);
-        res.sendStatus(500);
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
     });
 }
 
 // UPDATE one product
 const categorie_put = (req, res) => {
-  Categorie.update({ libelle: req.body.libelle }, {where: { id: req.params.id }})
+  Categorie.update({ libelle: req.body.libelle }, { where: { id: req.params.id } })
     .then(result => {
       res.status(200).send({ "message": "Category updated" });
     })
@@ -48,9 +51,12 @@ const categorie_delete = (req, res) => {
     }
   })
     .then(deleted_product => {
-        res.status(200).send({"message": "Category deleted"})
+      res.status(200).send({ "message": "Category deleted" })
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
+    });
 }
 
 module.exports = {
