@@ -13,7 +13,10 @@ const user_listing = (req, res) => {
             });
             res.status(200).send({ users: users_array });
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
+        });
 }
 
 // GET one user
@@ -32,7 +35,10 @@ const user_get = (req, res) => {
                 }
             )
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
+        });
 }
 
 // POST new user
@@ -71,7 +77,10 @@ const user_delete = (req, res) => {
         .then(result => {
             res.status(200).send({ "message": "User deleted" })
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
+        });
 }
 
 //Authenticate user

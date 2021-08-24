@@ -13,7 +13,10 @@ const orderplats_listing = (req, res) => {
             });
             res.status(200).send({ "order-plats": orderplats_array });
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
+        });
 }
 
 const orderplats_post = (req, res) => {
