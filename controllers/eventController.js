@@ -1,6 +1,7 @@
 const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const Plat = require('../models/Plat');
 
 // GET all events
 // const event_listing = (req, res) => {
@@ -41,10 +42,8 @@ const event_listing = (req, res) => {
 const event_get = (req, res) => {
   const event_id = req.params.id;
 
-  Event.findByPk(event_id)
+  Event.findByPk(event_id, { include: [Plat] })
     .then(event => {
-      console.log(event.password);
-      console.log("param", req.params.password);
       if (!bcrypt.compareSync(req.params.password, event.password)) {
         res.status(401).send({ "message": "Wrong password" });
       }
@@ -55,7 +54,8 @@ const event_get = (req, res) => {
               id: event.id,
               user_id: event.user_id,
               name: event.name,
-              password: event.password
+              password: event.password,
+              "plat": event.plats
             }
           }
         )

@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
+const Plat = require('./Plat');
 const User = require('./User');
 
 const Event = db.define('event', {
@@ -18,19 +19,20 @@ const Event = db.define('event', {
     // },
     name: {
         type: Sequelize.STRING,
-        validate: {
-            isAlpha: true
-        }
+        // validate: {
+        //     isAlpha: true
+        // }
     },
     password: {
         type: Sequelize.STRING,
-        validate: {
-            isAlpha: true
-        }
+        // validate: {
+        //     isAlpha: true
+        // }
     }
 });
 
 Event.belongsTo(User, { foreignKey: 'user_id' });
+Event.hasMany(Plat, { foreignKey: 'event_id' });
 
 // Event.associate = function(models) {
 //     Event.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });

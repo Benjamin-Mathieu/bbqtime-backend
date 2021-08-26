@@ -67,7 +67,7 @@ const plat_post = (req, res) => {
                     })
                     .catch(err => console.log(err));
             } else {
-                res.status(401).send({ "message": "User isn't the creathor of the event" });
+                res.status(401).send({ "message": "User isn't event creator" });
             }
         })
         .catch(err => {
