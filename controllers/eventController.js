@@ -1,5 +1,6 @@
 const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 // GET all events
 // const event_listing = (req, res) => {
@@ -42,16 +43,23 @@ const event_get = (req, res) => {
 
   Event.findByPk(event_id)
     .then(event => {
-      res.status(200).send(
-        {
-          "event": {
-            id: event.id,
-            user_id: event.user_id,
-            name: event.name,
-            password: event.password
+      console.log(event.password);
+      console.log("param", req.params.password);
+      if (!bcrypt.compareSync(req.params.password, event.password)) {
+        res.status(401).send({ "message": "Wrong password" });
+      }
+      else {
+        res.status(200).send(
+          {
+            "event": {
+              id: event.id,
+              user_id: event.user_id,
+              name: event.name,
+              password: event.password
+            }
           }
-        }
-      )
+        )
+      }
     })
     .catch(err => {
       console.log(err);
@@ -62,16 +70,24 @@ const event_get = (req, res) => {
 // POST new event
 const event_post = (req, res) => {
 
+  // Get token of connected user
   const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
+
+  // Hash password
+  const saltRounds = 10;
+  const hash = bcrypt.hashSync(req.body.password, saltRounds);
 
   Event.create({
     user_id: decoded_token.id,
     name: req.body.name,
-    password: req.body.password
+    password: hash
   })
     .then(new_event => {
-      res.status(201).send({ "message": "Event created" })
+      res.status(201).send({
+        "message": "Event created",
+        "id": new_event.id
+      });
     })
     .catch(err => {
       console.log(err);
