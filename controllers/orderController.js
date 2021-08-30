@@ -2,7 +2,14 @@ const Order = require('../models/Order');
 const jwt = require('jsonwebtoken');
 
 const order_listing = (req, res) => {
-    Order.findAll()
+
+    // Collect users information
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded_token = jwt.decode(token);
+
+    Order.findAll({
+        where: { user_id: decoded_token.id }
+    })
         .then(orders => {
             let orders_array = [];
             orders.forEach(event => {

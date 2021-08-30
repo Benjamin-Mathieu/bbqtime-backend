@@ -32,6 +32,7 @@ const plat_get = (req, res) => {
                     user_id: plat.user_id,
                     quantity: plat.quantity,
                     price: plat.price,
+                    description: plat.description,
                     category_id: plat.category_id
                 }
             )
@@ -60,10 +61,14 @@ const plat_post = (req, res) => {
                     user_id: decoded_token.id,
                     quantity: req.body.quantity,
                     price: req.body.price,
+                    description: req.body.description,
                     category_id: req.body.category_id
                 })
-                    .then(new_plat => {
-                        res.status(201).send({ "message": "Plat added to event" })
+                    .then(result => {
+                        res.status(201).send({
+                            "message": "Plat added to event",
+                            "menu": result
+                        })
                     })
                     .catch(err => console.log(err));
             } else {
@@ -82,7 +87,8 @@ const plat_put = (req, res) => {
         libelle: req.body.libelle,
         photo_url: req.body.photo_url,
         quantity: req.body.quantity,
-        price: req.body.price
+        price: req.body.price,
+        description: req.body.description
     }, { where: { id: req.params.id } })
         .then(result => {
             res.status(200).send({ "message": "Plat updated" });

@@ -75,13 +75,20 @@ const event_post = (req, res) => {
   const decoded_token = jwt.decode(token);
 
   // Hash password
-  const saltRounds = 10;
-  const hash = bcrypt.hashSync(req.body.password, saltRounds);
+  // const saltRounds = 10;
+  // const hash = bcrypt.hashSync(req.body.password, saltRounds);
 
   Event.create({
     user_id: decoded_token.id,
     name: req.body.name,
-    password: hash
+    // password: hash,
+    address: req.body.address,
+    city: req.body.city,
+    zipcode: req.body.zipcode,
+    date: req.body.date,
+    description: req.body.description,
+    photo_url: req.body.photo_url,
+    private: req.body.private
   })
     .then(new_event => {
       res.status(201).send({

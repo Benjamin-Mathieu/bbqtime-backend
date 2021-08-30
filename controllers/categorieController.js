@@ -3,14 +3,14 @@ const Categorie = require('../models/Categorie');
 // GET all products
 const categorie_listing = (req, res) => {
   Categorie.findAll()
-    .then(categories => {
+    .then(result => {
 
-      let products = [];
-      categories.forEach(categorie => {
-        products.push(categorie.libelle);
-        console.log(products);
+      let categories = [];
+      result.forEach(categorie => {
+        categories.push(categorie);
+        console.log(categories);
       });
-      res.status(200).send({ "categories": products });
+      res.status(200).send({ "categories": categories });
 
     })
     .catch(err => {
@@ -22,8 +22,11 @@ const categorie_listing = (req, res) => {
 // POST new product
 const categorie_post = (req, res) => {
   Categorie.findOrCreate({ where: { libelle: req.body.libelle } })
-    .then(new_product => {
-      res.status(201).send({ "message": "Category added" });
+    .then(result => {
+      res.status(201).send({
+        "message": "Category addedaz",
+        "categorie": result
+      });
     })
     .catch(err => {
       console.log(err);

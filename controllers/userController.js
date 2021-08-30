@@ -91,7 +91,7 @@ const user_login = (req, res) => {
                 res.status(400).send({ "message": "User not found" });
             }
             if (!bcrypt.compareSync(req.body.password, user.password)) {
-                res.status(401).send({ "error": "Wrong password" });
+                res.status(401).send({ "message": "Wrong password" });
             }
             else {
                 const token = jwt.sign({
@@ -102,6 +102,8 @@ const user_login = (req, res) => {
                 }, process.env.JWT_KEY, function (err, token) {
                     res.status(200).send({
                         "message": "User connected",
+                        "id": user.id,
+                        "email": user.email,
                         "token": token
                     })
                 });
