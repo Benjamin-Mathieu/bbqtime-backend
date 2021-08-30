@@ -23,11 +23,26 @@ const Event = db.define('event', {
         //     isAlpha: true
         // }
     },
-    password: {
-        type: Sequelize.STRING,
-        // validate: {
-        //     isAlpha: true
-        // }
+    address: {
+        type: Sequelize.TEXT
+    },
+    city: {
+        type: Sequelize.STRING
+    },
+    zipcode: {
+        type: Sequelize.INTEGER
+    },
+    date: {
+        type: Sequelize.DATE
+    },
+    description: {
+        type: Sequelize.CHAR
+    },
+    photo_url: {
+        type: Sequelize.CHAR
+    },
+    private: {
+        type: Sequelize.BOOLEAN
     }
 });
 
