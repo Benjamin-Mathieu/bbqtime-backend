@@ -16,6 +16,24 @@ const Plat = require('../models/Plat');
 //     .catch(err => console.log(err))
 // }
 
+const event_public = (req, res) => {
+  Event.findAll({
+    where: { private: false }
+  })
+    .then(result => {
+      if (result === null) {
+        res.status(400).send({ "error": "No events to show" });
+      } else {
+        console.log("NB EVENT", result.length);
+        res.status(200).send({ "events": result });
+      }
+    })
+    .catch((err) => {
+      console.log("Error while find user : ", err);
+      res.sendStatus(500).send({ "error": "Something went wrong" });
+    });
+}
+
 const event_listing = (req, res) => {
 
   // Get user_id
@@ -26,6 +44,7 @@ const event_listing = (req, res) => {
     where: { user_id: decoded_token.id }
   })
     .then(result => {
+      console.log("NB EVENT", result.length);
       if (result === null) {
         res.status(400).send({ "error": "No events to show" });
       } else {
@@ -140,5 +159,6 @@ module.exports = {
   event_get,
   event_post,
   event_put,
-  event_delete
+  event_delete,
+  event_public
 }

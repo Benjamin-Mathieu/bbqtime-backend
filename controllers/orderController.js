@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 
 const order_listing = (req, res) => {
@@ -8,6 +9,7 @@ const order_listing = (req, res) => {
     const decoded_token = jwt.decode(token);
 
     Order.findAll({
+        include: [Event],
         where: { user_id: decoded_token.id }
     })
         .then(orders => {
@@ -15,7 +17,7 @@ const order_listing = (req, res) => {
             orders.forEach(event => {
                 orders_array.push(event);
             });
-            res.status(200).send({ "orders": orders_array });
+            res.status(200).send({ "orders": orders_array, "event": orders.event });
         })
         .catch(err => {
             console.log(err);
