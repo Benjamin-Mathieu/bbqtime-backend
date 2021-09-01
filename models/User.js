@@ -32,6 +32,9 @@ const User = db.define('user', {
     },
     phone: {
         type: Sequelize.CHAR
+    },
+    zipcode: {
+        type: Sequelize.STRING
     }
 });
 

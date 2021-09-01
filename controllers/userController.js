@@ -31,7 +31,8 @@ const user_get = (req, res) => {
                     email: user.email,
                     name: user.name,
                     firstname: user.firstname,
-                    phone: user.phone
+                    phone: user.phone,
+                    zipcode: user.zipcode
                 }
             )
         })
@@ -55,7 +56,8 @@ const user_post = (req, res) => {
             name: req.body.name,
             firstname: req.body.firstname,
             phone: req.body.phone,
-            password: hash
+            password: hash,
+            zipcode: req.body.zipcode
         }
     })
         .then(result => {
@@ -103,8 +105,14 @@ const user_login = (req, res) => {
                     res.status(200).send({
                         "message": "User connected",
                         "id": user.id,
-                        "email": user.email,
-                        "token": token
+                        "token": token,
+                        "informations": {
+                            "email": user.email,
+                            "firstname": user.firstname,
+                            "name": user.name,
+                            "phone": user.phone,
+                            "zipcode": user.zipcode,
+                        }
                     })
                 });
             }
