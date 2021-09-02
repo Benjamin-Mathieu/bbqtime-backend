@@ -4,14 +4,9 @@ const Order = require('../models/Order');
 const Plat = require('../models/Plat');
 
 const orderplats_listing = (req, res) => {
-    OrderPlats.findAll({ include: [Order, Plat] })
+    OrderPlats.findAll({ include: [Plat] })
         .then(orderplats => {
-
-            let orderplats_array = [];
-            orderplats.forEach(res => {
-                orderplats_array.push(res);
-            });
-            res.status(200).send({ "order-plats": orderplats_array });
+            res.status(200).send({ "order-plats": orderplats });
         })
         .catch(err => {
             console.log(err);

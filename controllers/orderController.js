@@ -11,16 +11,14 @@ const order_listing = (req, res) => {
     const decoded_token = jwt.decode(token);
 
     Order.findAll({
-        include: [Event, OrderPlats],
+        include: [
+            { model: Event },
+            { model: OrderPlats, attributes: ['id', 'plat_id', 'quantity'], include: [Plat] }
+        ],
         where: { user_id: decoded_token.id }
     })
         .then(orders => {
-            console.log('test', orders);
-            let orders_array = [];
-            orders.forEach(event => {
-                orders_array.push(event);
-            });
-            res.status(200).send({ "orders": orders_array, "event": orders.event });
+            res.status(200).send({ "orders": orders });
         })
         .catch(err => {
             console.log(err);
@@ -32,25 +30,18 @@ const order_listing = (req, res) => {
 const order_get = (req, res) => {
     const order_id = req.params.id;
 
-    Order.findByPk(order_id)
+    Order.findByPk(order_id, {
+        include: [
+            { model: OrderPlats, attributes: ['id', 'plat_id', 'quantity'], include: [Plat] }
+        ]
+    })
         .then(order => {
-            OrderPlats.findAll({
-                where: {
-                    order_id: order_id
-                }, include: [Plat]
-            })
-                .then(orderPlats => {
-                    let orderPlatWithPlat = [];
-                    orderPlats.forEach(orderPlat => {
-                        orderPlatWithPlat.push(orderPlat);
-                    })
-                    res.status(200).send({ "order": order, "order_plats": orderPlatWithPlat });
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).send({ "error": "Something went wrong" });
-                });
+            res.status(200).send({ "order": order });
         })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "error": "Something went wrong" });
+        });
 }
 
 // POST new order
