@@ -1,9 +1,10 @@
 const Plat = require('../models/Plat');
 const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
+const Categorie = require('../models/Categorie');
 
 const plat_listing = (req, res) => {
-    Plat.findAll()
+    Plat.findAll({ include: [Categorie] })
         .then(plats => {
             let plats_array = [];
             plats.forEach(plat => {

@@ -33,6 +33,5 @@ const OrderPlats = db.define('orders_plats', {
 });
 
 OrderPlats.belongsTo(Plat, { foreignKey: 'plat_id' });
-OrderPlats.belongsTo(Order, { foreignKey: 'order_id' });
 
 module.exports = OrderPlats;

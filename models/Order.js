@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
 const Event = require('./Event');
+const OrderPlats = require('./OrderPlats');
 const User = require('./User');
 
 const Order = db.define('order', {
@@ -40,5 +41,6 @@ const Order = db.define('order', {
 
 Order.belongsTo(Event, { foreignKey: 'event_id' });
 Order.belongsTo(User, { foreignKey: 'user_id' });
+Order.hasMany(OrderPlats, { foreignKey: 'order_id' });
 
 module.exports = Order;

@@ -64,6 +64,8 @@ const event_get = (req, res) => {
 
   Event.findByPk(event_id, { include: [Plat] })
     .then(event => {
+
+      // Get all plats with categorie associated which belongs to the same event_id
       Plat.findAll({
         where: {
           event_id: event_id
@@ -73,7 +75,8 @@ const event_get = (req, res) => {
           let platWithCategorie = [];
           plats.forEach(plat => {
             platWithCategorie.push(plat);
-          });
+          })
+
           res.status(200).send({
             "event": {
               id: event.id,
