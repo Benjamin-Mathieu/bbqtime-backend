@@ -2,6 +2,7 @@ const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Plat = require('../models/Plat');
+const Categorie = require('../models/Categorie');
 
 // GET all events
 // const event_listing = (req, res) => {
@@ -63,29 +64,39 @@ const event_get = (req, res) => {
 
   Event.findByPk(event_id, { include: [Plat] })
     .then(event => {
-      if (!bcrypt.compareSync(req.params.password, event.password)) {
-        res.status(401).send({ "message": "Wrong password" });
-      }
-      else {
-        res.status(200).send(
-          {
+      Plat.findAll({
+        where: {
+          event_id: event_id
+        }, include: [Categorie]
+      })
+        .then(plats => {
+          let platWithCategorie = [];
+          plats.forEach(plat => {
+            platWithCategorie.push(plat);
+          });
+          res.status(200).send({
             "event": {
               id: event.id,
               user_id: event.user_id,
               name: event.name,
               password: event.password,
-              "plat": event.plats
+              address: event.address,
+              city: event.city,
+              zipcode: event.zipcode,
+              date: event.date,
+              description: event.description,
+              photo_url: event.photo_url,
+              private: event.private,
+              "plats": platWithCategorie,
             }
-          }
-        )
-      }
+          })
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).send({ "error": "Something went wrong" });
+        });
     })
-    .catch(err => {
-      console.log(err);
-      res.status(500).send({ "error": "Something went wrong" });
-    });
 }
-
 // POST new event
 const event_post = (req, res) => {
 
