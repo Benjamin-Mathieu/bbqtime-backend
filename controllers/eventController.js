@@ -3,38 +3,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Plat = require('../models/Plat');
 const Categorie = require('../models/Categorie');
+const { Op } = require("sequelize");
 
-// GET all events
-// const event_listing = (req, res) => {
-//   Event.findAll()
-//     .then(events => {
-//       let events_array = [];
-//       events.forEach(event => {
-//         events_array.push(event);
-//       });
-//       res.status(200).send({ "events": events_array });
-//     })
-//     .catch(err => console.log(err))
-// }
-
-const event_public = (req, res) => {
-  Event.findAll({
-    where: { private: false }
-  })
-    .then(result => {
-      if (result === null) {
-        res.status(400).send({ "error": "No events to show" });
-      } else {
-        console.log("NB EVENT", result.length);
-        res.status(200).send({ "events": result });
-      }
-    })
-    .catch((err) => {
-      console.log("Error while find user : ", err);
-      res.sendStatus(500).send({ "error": "Something went wrong" });
-    });
-}
-
+// GET events created by the user connected + all public events
 const event_listing = (req, res) => {
 
   // Get user_id
@@ -42,7 +13,9 @@ const event_listing = (req, res) => {
   const decoded_token = jwt.decode(token);
 
   Event.findAll({
-    where: { user_id: decoded_token.id }
+    where: {
+      [Op.or]: [{ user_id: decoded_token.id }, { private: 0 }]
+    }
   })
     .then(result => {
       console.log("NB EVENT", result.length);
@@ -58,47 +31,20 @@ const event_listing = (req, res) => {
     });
 }
 
-// GET one event
+// GET one event with Plats + Categorie
 const event_get = (req, res) => {
   const event_id = req.params.id;
 
-  Event.findByPk(event_id, { include: [Plat] })
+  Event.findByPk(event_id, {
+    include: { model: Plat, include: [Categorie] }
+  })
     .then(event => {
-
-      // Get all plats with categorie associated which belongs to the same event_id
-      Plat.findAll({
-        where: {
-          event_id: event_id
-        }, include: [Categorie]
-      })
-        .then(plats => {
-          let platWithCategorie = [];
-          plats.forEach(plat => {
-            platWithCategorie.push(plat);
-          })
-
-          res.status(200).send({
-            "event": {
-              id: event.id,
-              user_id: event.user_id,
-              name: event.name,
-              password: event.password,
-              address: event.address,
-              city: event.city,
-              zipcode: event.zipcode,
-              date: event.date,
-              description: event.description,
-              photo_url: event.photo_url,
-              private: event.private,
-              "plats": platWithCategorie,
-            }
-          })
-        })
-        .catch(err => {
-          console.log(err);
-          res.status(500).send({ "error": "Something went wrong" });
-        });
+      res.status(200).send({ event })
     })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
+    });
 }
 // POST new event
 const event_post = (req, res) => {
@@ -173,6 +119,5 @@ module.exports = {
   event_get,
   event_post,
   event_put,
-  event_delete,
-  event_public
+  event_delete
 }
