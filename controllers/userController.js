@@ -107,6 +107,7 @@ const user_login = (req, res) => {
                         "id": user.id,
                         "token": token,
                         "informations": {
+                            "id": user.id,
                             "email": user.email,
                             "firstname": user.firstname,
                             "name": user.name,

@@ -53,10 +53,19 @@ const order_post = (req, res) => {
         event_id: req.body.event_id,
         user_id: decoded_token.id,
         cost: req.body.cost,
-        heure: req.body.heure
+        heure: req.body.heure,
+        plats: req.body.plats
     })
-        .then(new_order => {
-            res.status(201).send({ "message": "Order created" })
+        .then(newOrder => {
+            console.log("newOrder", newOrder);
+            req.body.plats.forEach(plat => {
+                OrderPlats.create({
+                    plat_id: plat.id,
+                    order_id: newOrder.id,
+                    quantity: plat.qty
+                })
+            });
+            res.status(201).send({ "message": "Order created", "order": newOrder })
         })
         .catch(err => {
             console.log(err);

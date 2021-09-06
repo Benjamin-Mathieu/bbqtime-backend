@@ -51,35 +51,23 @@ const plat_post = (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     const decoded_token = jwt.decode(token);
 
-    Event.findByPk(req.body.event_id)
+    Plat.create({
+        libelle: req.body.libelle,
+        event_id: req.body.event_id,
+        photo_url: req.body.photo_url,
+        user_id: decoded_token.id,
+        quantity: req.body.quantity,
+        price: req.body.price,
+        description: req.body.description,
+        category_id: req.body.category_id
+    })
         .then(result => {
-            // Check if user is event creator
-            if (result.user_id === decoded_token.id) {
-                Plat.create({
-                    libelle: req.body.libelle,
-                    event_id: req.body.event_id,
-                    photo_url: req.body.photo_url,
-                    user_id: decoded_token.id,
-                    quantity: req.body.quantity,
-                    price: req.body.price,
-                    description: req.body.description,
-                    category_id: req.body.category_id
-                })
-                    .then(result => {
-                        res.status(201).send({
-                            "message": "Plat added to event",
-                            "menu": result
-                        })
-                    })
-                    .catch(err => console.log(err));
-            } else {
-                res.status(401).send({ "message": "User isn't event creator" });
-            }
+            res.status(201).send({
+                "message": "Plat added to event",
+                "menu": result
+            })
         })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send({ "message": "Something went wrong" });
-        });
+        .catch(err => console.log(err));
 };
 
 // UPDATE one plat
