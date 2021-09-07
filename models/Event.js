@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const db = require('../config/database');
 const Plat = require('./Plat');
 const User = require('./User');
+const Categorie = require('./Categorie');
 
 const Event = db.define('event', {
     id: {
@@ -47,7 +48,10 @@ const Event = db.define('event', {
 });
 
 Event.belongsTo(User, { foreignKey: 'user_id' });
+
 Event.hasMany(Plat, { foreignKey: 'event_id' });
+Categorie.Plats = Categorie.hasMany(Plat);
+Plat.Categorie = Plat.belongsTo(Categorie, { foreignKey: 'category_id' });
 
 // Event.associate = function(models) {
 //     Event.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });

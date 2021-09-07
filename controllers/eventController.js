@@ -5,7 +5,7 @@ const Plat = require('../models/Plat');
 const Categorie = require('../models/Categorie');
 const { Op } = require("sequelize");
 
-// GET events created by the user connected + all public events
+// GET events created by connected user + all public events
 const event_listing = (req, res) => {
 
   // Get user_id
@@ -31,7 +31,7 @@ const event_listing = (req, res) => {
     });
 }
 
-// GET one event with Plats + Categorie
+// GET event with Plats + Categorie
 const event_get = (req, res) => {
   const event_id = req.params.id;
 
@@ -53,14 +53,9 @@ const event_post = (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
 
-  // Hash password
-  // const saltRounds = 10;
-  // const hash = bcrypt.hashSync(req.body.password, saltRounds);
-
   Event.create({
     user_id: decoded_token.id,
     name: req.body.name,
-    // password: hash,
     address: req.body.address,
     city: req.body.city,
     zipcode: req.body.zipcode,
@@ -69,19 +64,20 @@ const event_post = (req, res) => {
     photo_url: req.body.photo_url,
     private: req.body.private
   })
-    .then(new_event => {
-      res.status(201).send({
-        "message": "Event created",
-        "id": new_event.id
-      });
+    .then(resp => {
+      res.status(201).send({ "message": "Event created", "event": resp })
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.status(500).send({ "error": "Something went wrong" });
-    });
+    })
+
+  // Hash password
+  // const saltRounds = 10;
+  // const hash = bcrypt.hashSync(req.body.password, saltRounds);
 }
 
-// PUT one event
+// PUT event
 const event_put = (req, res) => {
   Event.update({ name: req.body.name },
     {
@@ -98,7 +94,7 @@ const event_put = (req, res) => {
     });
 }
 
-// DELETE one event
+// DELETE event
 const event_delete = (req, res) => {
   Event.destroy({
     where: {

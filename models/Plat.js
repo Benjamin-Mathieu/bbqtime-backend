@@ -18,7 +18,7 @@ const Plat = db.define('plat', {
     },
     event_id: {
         type: Sequelize.INTEGER,
-        references: {         // Plat belongsTo Event 1:1
+        references: {
             model: 'event',
             key: 'id'
         }
@@ -43,13 +43,13 @@ const Plat = db.define('plat', {
     },
     category_id: {
         type: Sequelize.INTEGER,
-        references: {         // Plat hasOne Categorie 1:1
+        references: {
             model: 'categorie',
             key: 'id'
         }
     }
 });
 
-Plat.belongsTo(Categorie, { foreignKey: 'category_id' });
+// Plat.Categorie = Plat.belongsTo(Categorie, { foreignKey: 'category_id' });
 
 module.exports = Plat;

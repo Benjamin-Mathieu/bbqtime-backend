@@ -24,7 +24,7 @@ const categorie_post = (req, res) => {
   Categorie.findOrCreate({ where: { libelle: req.body.libelle } })
     .then(result => {
       res.status(201).send({
-        "message": "Category addedaz",
+        "message": "Category added",
         "categorie": result
       });
     })
