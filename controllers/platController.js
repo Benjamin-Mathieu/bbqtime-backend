@@ -24,19 +24,7 @@ const plat_get = (req, res) => {
 
     Plat.findByPk(plat_id)
         .then(plat => {
-            res.status(200).send(
-                {
-                    id: plat.id,
-                    libelle: plat.libelle,
-                    event_id: plat.event_id,
-                    photo_url: plat.photo_url,
-                    user_id: plat.user_id,
-                    quantity: plat.quantity,
-                    price: plat.price,
-                    description: plat.description,
-                    category_id: plat.category_id
-                }
-            )
+            res.status(200).send({ plat })
         })
         .catch(err => {
             console.log(err);
@@ -53,7 +41,6 @@ const plat_post = (req, res) => {
 
     Plat.create({
         libelle: req.body.libelle,
-        event_id: req.body.event_id,
         photo_url: req.body.photo_url,
         user_id: decoded_token.id,
         quantity: req.body.quantity,
@@ -64,10 +51,13 @@ const plat_post = (req, res) => {
         .then(result => {
             res.status(201).send({
                 "message": "Plat added to event",
-                "menu": result
+                "plat": result
             })
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({ "message": "Something went wrong" });
+        });
 };
 
 // UPDATE one plat

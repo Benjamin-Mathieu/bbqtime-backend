@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
-const Event = require('./Event');
 const Categorie = require('./Categorie');
 
 const Plat = db.define('plat', {
@@ -15,13 +14,6 @@ const Plat = db.define('plat', {
         // validate: {
         //     isAlpha: true
         // }
-    },
-    event_id: {
-        type: Sequelize.INTEGER,
-        references: {
-            model: 'event',
-            key: 'id'
-        }
     },
     photo_url: {
         type: Sequelize.STRING
@@ -40,16 +32,8 @@ const Plat = db.define('plat', {
     },
     description: {
         type: Sequelize.STRING
-    },
-    category_id: {
-        type: Sequelize.INTEGER,
-        references: {
-            model: 'categorie',
-            key: 'id'
-        }
     }
 });
 
-// Plat.Categorie = Plat.belongsTo(Categorie, { foreignKey: 'category_id' });
 
 module.exports = Plat;

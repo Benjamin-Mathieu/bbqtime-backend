@@ -17,13 +17,15 @@ const event_listing = (req, res) => {
       [Op.or]: [{ user_id: decoded_token.id }, { private: 0 }]
     }
   })
-    .then(result => {
-      console.log("NB EVENT", result.length);
-      if (result === null) {
-        res.status(400).send({ "error": "No events to show" });
-      } else {
-        res.status(200).send({ "events": result });
+    .then(events => {
+      let events_array = [];
+      events.forEach(event => {
+        events_array.push(event);
+      });
+      if (events === null) {
+        res.status(400).send({ "message": "No events to show" });
       }
+      res.status(200).send({ "events": events_array });
     })
     .catch((err) => {
       console.log("Error while find user : ", err);
@@ -35,9 +37,7 @@ const event_listing = (req, res) => {
 const event_get = (req, res) => {
   const event_id = req.params.id;
 
-  Event.findByPk(event_id, {
-    include: { model: Plat, include: [Categorie] }
-  })
+  Event.findByPk(event_id, { include: [Categorie] })
     .then(event => {
       res.status(200).send({ event })
     })

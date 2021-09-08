@@ -48,13 +48,8 @@ const Event = db.define('event', {
 });
 
 Event.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(Event, { foreignKey: 'user_id' });
 
-Event.hasMany(Plat, { foreignKey: 'event_id' });
-Categorie.Plats = Categorie.hasMany(Plat);
-Plat.Categorie = Plat.belongsTo(Categorie, { foreignKey: 'category_id' });
 
-// Event.associate = function(models) {
-//     Event.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
-// };
 
 module.exports = Event;

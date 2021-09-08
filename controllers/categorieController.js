@@ -1,8 +1,10 @@
 const Categorie = require('../models/Categorie');
+const Event = require('../models/Event');
+const Plat = require('../models/Plat');
 
-// GET all products
+// GET all categories
 const categorie_listing = (req, res) => {
-  Categorie.findAll()
+  Categorie.findAll({ include: [Plat] })
     .then(result => {
 
       let categories = [];
@@ -19,14 +21,26 @@ const categorie_listing = (req, res) => {
     });
 }
 
-// POST new product
+// POST new category
 const categorie_post = (req, res) => {
-  Categorie.findOrCreate({ where: { libelle: req.body.libelle } })
+  Categorie.findOrCreate({
+    where: { libelle: req.body.libelle },
+    defaults: { event_id: req.body.event_id }
+  })
     .then(result => {
-      res.status(201).send({
-        "message": "Category added",
-        "categorie": result
-      });
+
+      if (result[1]) {
+        res.status(201).send({
+          "message": "Category added",
+          "categorie": result
+        });
+      } else {
+        res.status(400).send({
+          "message": "Category already exist",
+          "categorie": result
+        });
+      }
+
     })
     .catch(err => {
       console.log(err);
@@ -34,7 +48,7 @@ const categorie_post = (req, res) => {
     });
 }
 
-// UPDATE one product
+// UPDATE category
 const categorie_put = (req, res) => {
   Categorie.update({ libelle: req.body.libelle }, { where: { id: req.params.id } })
     .then(result => {
@@ -46,7 +60,7 @@ const categorie_put = (req, res) => {
     })
 }
 
-// DELETE one product
+// DELETE category
 const categorie_delete = (req, res) => {
   Categorie.destroy({
     where: {

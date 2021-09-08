@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
+const Plat = require('./Plat');
+const Event = require('./Event');
 
 const Categorie = db.define('categorie', {
     id: {
@@ -15,5 +17,11 @@ const Categorie = db.define('categorie', {
         }
     }
 });
+
+Plat.belongsTo(Categorie, { foreignKey: 'category_id' });
+Categorie.hasMany(Plat, { foreignKey: 'category_id' });
+
+// Categorie.belongsTo(Event, { foreignKey: 'event_id' });
+// Event.hasMany(Categorie, { foreignKey: 'category_id' });
 
 module.exports = Categorie;
