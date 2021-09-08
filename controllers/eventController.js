@@ -18,14 +18,10 @@ const event_listing = (req, res) => {
     }
   })
     .then(events => {
-      let events_array = [];
-      events.forEach(event => {
-        events_array.push(event);
-      });
       if (events === null) {
         res.status(400).send({ "message": "No events to show" });
       }
-      res.status(200).send({ "events": events_array });
+      res.status(200).send({ events });
     })
     .catch((err) => {
       console.log("Error while find user : ", err);
@@ -37,7 +33,7 @@ const event_listing = (req, res) => {
 const event_get = (req, res) => {
   const event_id = req.params.id;
 
-  Event.findByPk(event_id, { include: [Categorie] })
+  Event.findByPk(event_id, { include: { model: Categorie, include: [Plat] } })
     .then(event => {
       res.status(200).send({ event })
     })

@@ -2,9 +2,9 @@ const Categorie = require('../models/Categorie');
 const Event = require('../models/Event');
 const Plat = require('../models/Plat');
 
-// GET all categories
+// GET all categories from an event
 const categorie_listing = (req, res) => {
-  Categorie.findAll({ include: [Plat] })
+  Categorie.findAll({ where: { event_id: req.params.id }, include: [Plat] })
     .then(result => {
 
       let categories = [];
@@ -25,7 +25,7 @@ const categorie_listing = (req, res) => {
 const categorie_post = (req, res) => {
   Categorie.findOrCreate({
     where: { libelle: req.body.libelle },
-    defaults: { event_id: req.body.event_id }
+    defaults: { event_id: req.body.event_id, libelle: req.body.libelle }
   })
     .then(result => {
 

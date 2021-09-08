@@ -12,16 +12,16 @@ const Categorie = db.define('categorie', {
     },
     libelle: {
         type: Sequelize.STRING,
-        validate: {
-            isAlpha: true
-        }
+        // validate: {
+        //     isAlpha: true
+        // }
     }
 });
 
 Plat.belongsTo(Categorie, { foreignKey: 'category_id' });
 Categorie.hasMany(Plat, { foreignKey: 'category_id' });
 
-// Categorie.belongsTo(Event, { foreignKey: 'event_id' });
-// Event.hasMany(Categorie, { foreignKey: 'category_id' });
+Categorie.belongsTo(Event, { foreignKey: 'event_id' });
+Event.hasMany(Categorie, { foreignKey: 'event_id' });
 
 module.exports = Categorie;

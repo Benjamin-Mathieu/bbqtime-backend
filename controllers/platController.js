@@ -3,6 +3,7 @@ const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 const Categorie = require('../models/Categorie');
 
+// GET plat with categorie
 const plat_listing = (req, res) => {
     Plat.findAll({ include: [Categorie] })
         .then(plats => {
@@ -18,13 +19,12 @@ const plat_listing = (req, res) => {
         });
 };
 
-// GET one plat
+// GET plat of a category
 const plat_get = (req, res) => {
-    const plat_id = req.params.id;
 
-    Plat.findByPk(plat_id)
-        .then(plat => {
-            res.status(200).send({ plat })
+    Plat.findAll({ where: { category_id: req.params.id } })
+        .then(plats => {
+            res.status(200).send({ plats })
         })
         .catch(err => {
             console.log(err);
@@ -32,7 +32,7 @@ const plat_get = (req, res) => {
         });
 };
 
-// POST new plat
+// POST plat
 const plat_post = (req, res) => {
 
     // Collect users information
@@ -60,7 +60,7 @@ const plat_post = (req, res) => {
         });
 };
 
-// UPDATE one plat
+// UPDATE plat
 const plat_put = (req, res) => {
     Plat.update({
         libelle: req.body.libelle,
@@ -78,7 +78,7 @@ const plat_put = (req, res) => {
         })
 }
 
-// DELETE one plat
+// DELETE plat
 const plat_delete = (req, res) => {
     Plat.destroy({
         where: {
