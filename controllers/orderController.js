@@ -3,6 +3,7 @@ const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 const OrderPlats = require('../models/OrderPlats');
 const Plat = require('../models/Plat');
+const { ProxyAuthenticationRequired } = require('http-errors');
 
 const order_listing = (req, res) => {
 
@@ -48,11 +49,18 @@ const order_get = (req, res) => {
 const order_post = (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     const decoded_token = jwt.decode(token);
+    let totalOrder = 0;
+
+
+    req.body.plats.forEach(plat => {
+        totalOrder = plat.price * plat.qty;
+    });
+
 
     Order.create({
         event_id: req.body.event_id,
         user_id: decoded_token.id,
-        cost: req.body.cost,
+        cost: totalOrder,
         heure: req.body.heure,
         plats: req.body.plats
     })
