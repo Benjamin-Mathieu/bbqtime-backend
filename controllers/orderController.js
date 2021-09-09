@@ -65,13 +65,17 @@ const order_post = (req, res) => {
         plats: req.body.plats
     })
         .then(newOrder => {
-            console.log("newOrder", newOrder);
             req.body.plats.forEach(plat => {
                 OrderPlats.create({
                     plat_id: plat.id,
                     order_id: newOrder.id,
                     quantity: plat.qty
                 })
+                    .then(() => {
+                        // Update stock
+                        let updateStock = plat.stock - plat.qty
+                        Plat.update({ stock: updateStock }, { where: { id: plat.id } });
+                    })
             });
             res.status(201).send({ "message": "Order created", "order": newOrder })
         })

@@ -18,7 +18,7 @@ const Plat = db.define('plat', {
     photo_url: {
         type: Sequelize.STRING
     },
-    quantity: {
+    stock: {
         type: Sequelize.BIGINT,
         // validate: {
         //     isNumeric: true

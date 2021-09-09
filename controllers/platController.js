@@ -43,7 +43,7 @@ const plat_post = (req, res) => {
         libelle: req.body.libelle,
         photo_url: req.body.photo_url,
         user_id: decoded_token.id,
-        quantity: req.body.quantity,
+        stock: req.body.stock,
         price: req.body.price,
         description: req.body.description,
         category_id: req.body.category_id
@@ -65,7 +65,7 @@ const plat_put = (req, res) => {
     Plat.update({
         libelle: req.body.libelle,
         photo_url: req.body.photo_url,
-        quantity: req.body.quantity,
+        stock: req.body.stock,
         price: req.body.price,
         description: req.body.description
     }, { where: { id: req.params.id } })

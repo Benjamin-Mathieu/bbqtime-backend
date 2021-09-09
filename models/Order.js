@@ -40,6 +40,8 @@ const Order = db.define('order', {
 });
 
 Order.belongsTo(Event, { foreignKey: 'event_id' });
+Event.hasMany(Order, { foreignKey: 'event_id' });
+
 Order.belongsTo(User, { foreignKey: 'user_id' });
 Order.hasMany(OrderPlats, { foreignKey: 'order_id' });
 
