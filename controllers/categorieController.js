@@ -1,6 +1,7 @@
 const Categorie = require('../models/Categorie');
 const Event = require('../models/Event');
 const Plat = require('../models/Plat');
+const { Op } = require("sequelize");
 
 // GET all categories from an event
 const categorie_listing = (req, res) => {
@@ -24,7 +25,7 @@ const categorie_listing = (req, res) => {
 // POST new category
 const categorie_post = (req, res) => {
   Categorie.findOrCreate({
-    where: { libelle: req.body.libelle },
+    where: { [Op.and]: [{ libelle: req.body.libelle }, { event_id: req.body.event_id }] },
     defaults: { event_id: req.body.event_id, libelle: req.body.libelle }
   })
     .then(result => {
