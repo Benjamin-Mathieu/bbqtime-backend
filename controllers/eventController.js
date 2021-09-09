@@ -4,24 +4,80 @@ const bcrypt = require('bcrypt');
 const Plat = require('../models/Plat');
 const Categorie = require('../models/Categorie');
 const { Op } = require("sequelize");
+const Order = require('../models/Order');
+const OrderPlats = require('../models/OrderPlats');
 
-// GET events created by connected user + all public events
+// GET events all public events
 const event_listing = (req, res) => {
 
   // Get user_id
   const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
 
-  Event.findAll({
-    where: {
-      [Op.or]: [{ user_id: decoded_token.id }, { private: 0 }]
-    }
-  })
+  Event.findAll({ where: { private: 0 } })
     .then(events => {
       if (events === null) {
         res.status(400).send({ "message": "No events to show" });
       }
       res.status(200).send({ events });
+    })
+    .catch((err) => {
+      console.log("Error while find user : ", err);
+      res.sendStatus(500).send({ "error": "Something went wrong" });
+    });
+}
+
+// GET events created by user
+const event_created = (req, res) => {
+
+  // Get user_id
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded_token = jwt.decode(token);
+  let totalAmount = 0;
+  let platsInOrders = [];
+
+
+  Event.findAll({ where: { user_id: decoded_token.id }, include: { model: Order, include: { model: OrderPlats, include: [Plat] } } })
+    .then(events => {
+      if (events === null) {
+        res.status(400).send({ "message": "No events to show" });
+      }
+
+      /* Calcul total amount 
+      events: [
+        orders: [
+          id: 44,
+          cost: 10,
+          orders_plats: [
+            order_id: 66,
+            quantity: 2,
+            plat_id: 1,
+            plats: [
+              id: 1
+              price: 5,
+              category_id
+            ]
+          ]
+        ]
+      ]
+      */
+      events.forEach(event => {
+        event.orders.forEach(order => {
+          totalAmount += order.cost;
+
+          // Push plats in platsInOrders
+          order.orders_plats.forEach(orderPlat => {
+            platsInOrders.push({ id: orderPlat.plat.id, libelle: orderPlat.plat.libelle, photo_url: orderPlat.plat.libelle });
+          });
+        });
+      });
+      console.log("********", platsInOrders);
+      res.status(200).send(
+        {
+          "event": events,
+          "totalAmount": totalAmount
+        }
+      );
     })
     .catch((err) => {
       console.log("Error while find user : ", err);
@@ -108,6 +164,7 @@ const event_delete = (req, res) => {
 
 module.exports = {
   event_listing,
+  event_created,
   event_get,
   event_post,
   event_put,
