@@ -67,10 +67,30 @@ const event_manage = (req, res) => {
             "price": orderedPlats.plat.price,
             "total": orderedPlats.quantity * orderedPlats.plat.price
           });
+
         });
       });
-      console.log('test', platsOrderedInEvent.filter(x => x.id === x.id));
-      res.status(200).send({ platsOrderedInEvent });
+
+
+
+      const ids = platsOrderedInEvent.map(el => el.id); // return new array with all plats id's
+
+      // Find if plat is duplicated; if yes, total amount is calculated
+      ids.filter((id, index) => {
+        const firstExistingId = ids.indexOf(id);
+        if (firstExistingId !== index) {
+          platsOrderedInEvent[firstExistingId].quantity += platsOrderedInEvent[index].quantity;
+          platsOrderedInEvent[firstExistingId].total += platsOrderedInEvent[index].total;
+          platsOrderedInEvent.splice(index, 1);
+        }
+      });
+
+      // Calcul total budget
+      const totalAmounts = platsOrderedInEvent.map(el => el.total); // return new array with total amount for each plats
+      const reducer = (previousValue, currentValue) => previousValue + currentValue;
+      const totalBudget = totalAmounts.reduce(reducer); // sum of all amounts
+
+      res.status(200).send({ "plats": platsOrderedInEvent, "totalBudget": totalBudget });
     }).catch(err => {
       console.log(err);
     })
