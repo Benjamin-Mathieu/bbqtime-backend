@@ -5,6 +5,7 @@ const checkAuthMiddleware = require('../middlewares/checkAuthorization');
 
 router.get('/', checkAuthMiddleware.checkAuth, eventController.event_listing);
 router.get('/myEvents', checkAuthMiddleware.checkAuth, eventController.event_created);
+router.get('/myEvents/:id', checkAuthMiddleware.checkAuth, eventController.event_manage);
 router.get('/:id', checkAuthMiddleware.checkAuth, eventController.event_get);
 router.post('/', checkAuthMiddleware.checkAuth, eventController.event_post);
 router.put('/:id', checkAuthMiddleware.checkAuth, eventController.event_put);

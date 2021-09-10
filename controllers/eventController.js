@@ -33,56 +33,49 @@ const event_created = (req, res) => {
   // Get user_id
   const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
-  let totalAmount = 0;
-  let platsInOrders = [];
 
-
-  Event.findAll({ where: { user_id: decoded_token.id }, include: { model: Order, include: { model: OrderPlats, include: [Plat] } } })
+  Event.findAll({ where: { user_id: decoded_token.id } })
     .then(events => {
-      if (events === null) {
-        res.status(400).send({ "message": "No events to show" });
-      }
+      res.status(200).send({ events })
+    })
+    .catch(err => {
+      res.status(500).send({ "error": "Something went wrong" });
+    })
+}
 
-      /* Calcul total amount 
-      events: [
-        orders: [
-          id: 44,
-          cost: 10,
-          orders_plats: [
-            order_id: 66,
-            quantity: 2,
-            plat_id: 1,
-            plats: [
-              id: 1
-              price: 5,
-              category_id
-            ]
-          ]
-        ]
-      ]
-      */
-      events.forEach(event => {
-        event.orders.forEach(order => {
-          totalAmount += order.cost;
+// GET event to manage orders
+const event_manage = (req, res) => {
+  const event_id = req.params.id;
+  // Get user_id
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded_token = jwt.decode(token);
 
-          // Push plats in platsInOrders
-          order.orders_plats.forEach(orderPlat => {
-            platsInOrders.push({ id: orderPlat.plat.id, libelle: orderPlat.plat.libelle, photo_url: orderPlat.plat.libelle });
+  Order.findAll({ where: { event_id: event_id }, include: { model: OrderPlats, include: [Plat] } })
+    .then(orders => {
+
+      let platsOrderedInEvent = [];
+
+      orders.forEach(order => {
+        order.orders_plats.forEach(orderedPlats => {
+
+          platsOrderedInEvent.push({
+            "id": orderedPlats.plat.id,
+            "libelle": orderedPlats.plat.libelle,
+            "quantity": orderedPlats.plat.quantity,
+            "photo_url": orderedPlats.plat.photo_url,
+            "quantity": orderedPlats.quantity,
+            "price": orderedPlats.plat.price,
+            "total": orderedPlats.quantity * orderedPlats.plat.price
           });
         });
       });
-      console.log("********", platsInOrders);
-      res.status(200).send(
-        {
-          "event": events,
-          "totalAmount": totalAmount
-        }
-      );
+      console.log('test', platsOrderedInEvent.filter(x => x.id === x.id));
+      res.status(200).send({ platsOrderedInEvent });
+    }).catch(err => {
+      console.log(err);
     })
-    .catch((err) => {
-      console.log("Error while find user : ", err);
-      res.sendStatus(500).send({ "error": "Something went wrong" });
-    });
+
+
 }
 
 // GET event with Plats + Categorie
@@ -98,6 +91,7 @@ const event_get = (req, res) => {
       res.status(500).send({ "error": "Something went wrong" });
     });
 }
+
 // POST new event
 const event_post = (req, res) => {
 
@@ -165,6 +159,7 @@ const event_delete = (req, res) => {
 module.exports = {
   event_listing,
   event_created,
+  event_manage,
   event_get,
   event_post,
   event_put,
