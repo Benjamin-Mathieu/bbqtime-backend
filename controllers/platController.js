@@ -38,10 +38,10 @@ const plat_post = (req, res) => {
     // Collect users information
     const token = req.headers.authorization.split(" ")[1];
     const decoded_token = jwt.decode(token);
-
+    console.log(req.file);
     Plat.create({
         libelle: req.body.libelle,
-        photo_url: req.body.photo_url,
+        photo_url: "./uploads/" + req.file.filename,
         user_id: decoded_token.id,
         stock: req.body.stock,
         price: req.body.price,
