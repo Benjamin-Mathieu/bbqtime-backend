@@ -41,7 +41,7 @@ const plat_post = (req, res) => {
     console.log(req.file);
     Plat.create({
         libelle: req.body.libelle,
-        photo_url: "./uploads/" + req.file.filename,
+        photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
         user_id: decoded_token.id,
         stock: req.body.stock,
         price: req.body.price,
