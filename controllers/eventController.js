@@ -15,7 +15,7 @@ const event_listing = (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
 
-  Event.findAll({ where: { private: 0 } })
+  Event.findAll()
     .then(events => {
       if (events === null) {
         res.status(400).send({ "message": "No events to show" });
@@ -102,12 +102,25 @@ const event_manage = (req, res) => {
 // GET event with Plats + Categorie
 const event_get = (req, res) => {
   const event_id = req.params.id;
-  const password = req.params.password;
 
   Event.findByPk(event_id, { include: { model: Categorie, include: [Plat] } })
     .then(event => {
-      if (event.password !== password) {
-        res.status(401).send({ "message": "Le mot de passe est incorrect !" });
+      res.status(200).send({ event });
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({ "error": "Something went wrong" });
+    });
+}
+
+// GET event with password typed by user
+const event_join = (req, res) => {
+  const password = req.params.password;
+
+  Event.findOne({ where: { password: password }, include: { model: Categorie, include: [Plat] } })
+    .then(event => {
+      if (event === null) {
+        res.status(400).send({ "message": "Mot de passe incorrect" });
       } else {
         res.status(200).send({ event });
       }
@@ -117,6 +130,7 @@ const event_get = (req, res) => {
       res.status(500).send({ "error": "Something went wrong" });
     });
 }
+
 
 // POST new event
 const event_post = (req, res) => {
@@ -205,6 +219,7 @@ module.exports = {
   event_created,
   event_manage,
   event_get,
+  event_join,
   event_post,
   event_put,
   event_delete,
