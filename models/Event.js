@@ -24,6 +24,9 @@ const Event = db.define('event', {
         //     isAlpha: true
         // }
     },
+    password: {
+        type: Sequelize.STRING
+    },
     address: {
         type: Sequelize.TEXT
     },

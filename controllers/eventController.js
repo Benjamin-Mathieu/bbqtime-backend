@@ -6,6 +6,7 @@ const Categorie = require('../models/Categorie');
 const { Op } = require("sequelize");
 const Order = require('../models/Order');
 const OrderPlats = require('../models/OrderPlats');
+const fs = require("fs");
 
 // GET events all public events
 const event_listing = (req, res) => {
@@ -101,10 +102,15 @@ const event_manage = (req, res) => {
 // GET event with Plats + Categorie
 const event_get = (req, res) => {
   const event_id = req.params.id;
+  const password = req.params.password;
 
   Event.findByPk(event_id, { include: { model: Categorie, include: [Plat] } })
     .then(event => {
-      res.status(200).send({ event })
+      if (event.password !== password) {
+        res.status(401).send({ "message": "Le mot de passe est incorrect !" });
+      } else {
+        res.status(200).send({ event });
+      }
     })
     .catch(err => {
       console.log(err);
@@ -119,15 +125,20 @@ const event_post = (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
 
+  // Hash password
+  // const saltRounds = 10;
+  // const hash = bcrypt.hashSync(req.body.password, saltRounds);
+
   Event.create({
     user_id: decoded_token.id,
     name: req.body.name,
+    password: req.body.password,
     address: req.body.address,
     city: req.body.city,
     zipcode: req.body.zipcode,
     date: req.body.date,
     description: req.body.description,
-    photo_url: req.body.photo_url,
+    photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
     private: req.body.private
   })
     .then(resp => {
@@ -138,9 +149,7 @@ const event_post = (req, res) => {
       res.status(500).send({ "error": "Something went wrong" });
     })
 
-  // Hash password
-  // const saltRounds = 10;
-  // const hash = bcrypt.hashSync(req.body.password, saltRounds);
+
 }
 
 // PUT event
@@ -176,6 +185,21 @@ const event_delete = (req, res) => {
     });
 }
 
+const event_image = (req, res) => {
+  const path = process.env.IMAGE_PATH + req.params.filename;
+
+  try {
+    fs.readFile(path, (err, data) => {
+      res.writeHead(200, { "Content-Type": "image/jpeg" });
+      res.end(data);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({});
+  }
+}
+
+
 module.exports = {
   event_listing,
   event_created,
@@ -183,5 +207,6 @@ module.exports = {
   event_get,
   event_post,
   event_put,
-  event_delete
+  event_delete,
+  event_image
 }
