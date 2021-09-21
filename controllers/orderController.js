@@ -53,7 +53,7 @@ const order_post = (req, res) => {
 
 
     req.body.plats.forEach(plat => {
-        totalOrder = plat.price * plat.qty;
+        totalOrder += plat.price * plat.qty;
     });
 
 
@@ -61,8 +61,7 @@ const order_post = (req, res) => {
         event_id: req.body.event_id,
         user_id: decoded_token.id,
         cost: totalOrder,
-        heure: req.body.heure,
-        plats: req.body.plats
+        heure: req.body.heure
     })
         .then(newOrder => {
             req.body.plats.forEach(plat => {
