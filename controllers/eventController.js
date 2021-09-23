@@ -7,6 +7,7 @@ const { Op } = require("sequelize");
 const Order = require('../models/Order');
 const OrderPlats = require('../models/OrderPlats');
 const fs = require("fs");
+const qrcode = require("qrcode");
 
 // GET events all public events
 const event_listing = (req, res) => {
@@ -18,13 +19,12 @@ const event_listing = (req, res) => {
   Event.findAll()
     .then(events => {
       if (events === null) {
-        res.status(400).send({ "message": "No events to show" });
+        res.status(400).send({ "message": "Pas d'évènement à afficher " });
       }
       res.status(200).send({ events });
     })
     .catch((err) => {
-      console.log("Error while find user : ", err);
-      res.sendStatus(500).send({ "error": "Something went wrong" });
+      res.sendStatus(500).send({ "message": "Une erreur est survenue" });
     });
 }
 
@@ -40,7 +40,7 @@ const event_created = (req, res) => {
       res.status(200).send({ events })
     })
     .catch(err => {
-      res.status(500).send({ "error": "Something went wrong" });
+      res.status(500).send({ "message": "Une erreur est survenue" });
     })
 }
 
@@ -109,7 +109,7 @@ const event_get = (req, res) => {
     })
     .catch(err => {
       console.log(err);
-      res.status(500).send({ "error": "Something went wrong" });
+      res.status(500).send({ "message": "Une erreur est survenue !" });
     });
 }
 
@@ -120,14 +120,14 @@ const event_join = (req, res) => {
   Event.findOne({ where: { password: password }, include: { model: Categorie, include: [Plat] } })
     .then(event => {
       if (event === null) {
-        res.status(400).send({ "message": "Mot de passe incorrect" });
+        res.status(400).send({ "message": "Aucun évènement est lié à ce Qrcode !" });
       } else {
         res.status(200).send({ event });
       }
     })
     .catch(err => {
       console.log(err);
-      res.status(500).send({ "error": "Something went wrong" });
+      res.status(500).send({ "message": "Une erreur est survenue !" });
     });
 }
 
@@ -143,25 +143,30 @@ const event_post = (req, res) => {
   // const saltRounds = 10;
   // const hash = bcrypt.hashSync(req.body.password, saltRounds);
 
-  Event.create({
-    user_id: decoded_token.id,
-    name: req.body.name,
-    password: req.body.password,
-    address: req.body.address,
-    city: req.body.city,
-    zipcode: req.body.zipcode,
-    date: req.body.date,
-    description: req.body.description,
-    photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
-    private: req.body.private
-  })
-    .then(resp => {
-      res.status(201).send({ "message": "Event created", "event": resp })
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).send({ "error": "Something went wrong" });
-    })
+  // Generate QrCode and create event
+  qrcode.toDataURL(req.body.password, { width: 500 })
+    .then(url => {
+      Event.create({
+        user_id: decoded_token.id,
+        name: req.body.name,
+        password: req.body.password,
+        address: req.body.address,
+        city: req.body.city,
+        zipcode: req.body.zipcode,
+        date: req.body.date,
+        description: req.body.description,
+        photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
+        private: req.body.private,
+        qrcode: url
+      })
+        .then(resp => {
+          res.status(201).send({ "message": "Evènement crée !", "event": resp });
+        })
+        .catch(err => {
+          console.error(err);
+          res.status(500).send({ "message": "Une erreur est survenue !" });
+        })
+    });
 
 
 }
@@ -175,11 +180,11 @@ const event_put = (req, res) => {
       }
     })
     .then(updated_event => {
-      res.status(200).send({ "message": "Event updated" })
+      res.status(200).send({ "message": "Evènement mis à jour !" })
     })
     .catch(err => {
       console.log(err);
-      res.status(500).send({ "error": "Something went wrong" });
+      res.status(500).send({ "message": "Une erreur est survenue !" });
     });
 }
 
@@ -191,11 +196,11 @@ const event_delete = (req, res) => {
     }
   })
     .then(deleted_event => {
-      res.status(200).send({ "message": "Event deleted" })
+      res.status(200).send({ "message": "Evènement supprimé !" })
     })
     .catch(err => {
       console.log(err);
-      res.status(500).send({ "error": "Something went wrong" });
+      res.status(500).send({ "message": "Une erreur est survenue !" });
     });
 }
 

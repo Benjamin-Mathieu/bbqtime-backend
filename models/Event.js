@@ -47,6 +47,9 @@ const Event = db.define('event', {
     },
     private: {
         type: Sequelize.BOOLEAN
+    },
+    qrcode: {
+        type: Sequelize.TEXT
     }
 });
 
