@@ -47,53 +47,54 @@ const event_created = (req, res) => {
 // GET event to manage orders
 const event_manage = (req, res) => {
   const event_id = req.params.id;
-  // Get user_id
   const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
 
   Order.findAll({ where: { event_id: event_id }, include: { model: OrderPlats, include: [Plat] } })
     .then(orders => {
 
-      let platsOrderedInEvent = [];
+      if (orders.length > 0) {
+        let platsOrderedInEvent = [];
 
-      orders.forEach(order => {
-        order.orders_plats.forEach(orderedPlats => {
+        orders.forEach(order => {
+          order.orders_plats.forEach(orderedPlats => {
 
-          platsOrderedInEvent.push({
-            "id": orderedPlats.plat.id,
-            "libelle": orderedPlats.plat.libelle,
-            "quantity": orderedPlats.plat.quantity,
-            "photo_url": orderedPlats.plat.photo_url,
-            "quantity": orderedPlats.quantity,
-            "price": orderedPlats.plat.price,
-            "total": orderedPlats.quantity * orderedPlats.plat.price
+            platsOrderedInEvent.push({
+              "id": orderedPlats.plat.id,
+              "libelle": orderedPlats.plat.libelle,
+              "quantity": orderedPlats.plat.quantity,
+              "photo_url": orderedPlats.plat.photo_url,
+              "quantity": orderedPlats.quantity,
+              "price": orderedPlats.plat.price,
+              "total": orderedPlats.quantity * orderedPlats.plat.price
+            });
+
           });
-
         });
-      });
 
+        const ids = platsOrderedInEvent.map(el => el.id); // return new array with all plats id's
+        // Find if plat is duplicated; if yes, total amount is calculated
+        ids.filter((id, index) => {
+          const firstExistingId = ids.indexOf(id);
+          if (firstExistingId !== index) {
+            platsOrderedInEvent[firstExistingId].quantity += platsOrderedInEvent[index].quantity;
+            platsOrderedInEvent[firstExistingId].total += platsOrderedInEvent[index].total;
+            platsOrderedInEvent.splice(index, 1);
+          }
+        });
 
+        // Calcul total budget
+        const totalAmounts = platsOrderedInEvent.map(el => el.total); // return new array with total amount for each plats
+        const reducer = (previousValue, currentValue) => previousValue + currentValue;
+        const totalBudget = totalAmounts.reduce(reducer); // sum of all amounts
 
-      const ids = platsOrderedInEvent.map(el => el.id); // return new array with all plats id's
+        res.status(200).send({ "id": event_id, "plats": platsOrderedInEvent, "totalBudget": totalBudget });
+      } else {
+        res.status(200).send({ "id": event_id, "message": "Aucune commande pour le moment" });
+      }
 
-      // Find if plat is duplicated; if yes, total amount is calculated
-      ids.filter((id, index) => {
-        const firstExistingId = ids.indexOf(id);
-        if (firstExistingId !== index) {
-          platsOrderedInEvent[firstExistingId].quantity += platsOrderedInEvent[index].quantity;
-          platsOrderedInEvent[firstExistingId].total += platsOrderedInEvent[index].total;
-          platsOrderedInEvent.splice(index, 1);
-        }
-      });
-
-      // Calcul total budget
-      const totalAmounts = platsOrderedInEvent.map(el => el.total); // return new array with total amount for each plats
-      const reducer = (previousValue, currentValue) => previousValue + currentValue;
-      const totalBudget = totalAmounts.reduce(reducer); // sum of all amounts
-
-      res.status(200).send({ "plats": platsOrderedInEvent, "totalBudget": totalBudget });
     }).catch(err => {
-      console.log(err);
+      res.status(500).send({ "message": "Une erreur est survenue: " + err });
     })
 
 
