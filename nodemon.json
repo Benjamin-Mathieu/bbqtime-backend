@@ -2,6 +2,7 @@
     "env": {
         "JWT_KEY": "$2b$10$vkYbcQLWauaherb277fwzO2RAjccL2YY8/75oe.8BhOhglZK4L9rm",
         "IMAGE_PATH": "D:\\LTG Sercices\\stag\\back\\uploads\\",
-        "URL_BACK": "http://192.168.1.47:3000"
+        "URL_BACK": "http://192.168.1.47:3000",
+        "API_SENDINBLUE_KEY": "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"
     }
 }
