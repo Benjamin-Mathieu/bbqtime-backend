@@ -14,5 +14,6 @@ router.post('/', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image')
 router.put('/:id', checkAuthMiddleware.checkAuth, eventController.event_put);
 router.delete('/:id', checkAuthMiddleware.checkAuth, eventController.event_delete);
 router.get("/pictures/:filename", eventController.event_image);
+router.post("/mail/invitation", eventController.event_sendInvitation);
 
 module.exports = router;

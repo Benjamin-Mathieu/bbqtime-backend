@@ -6,8 +6,11 @@ const Categorie = require('../models/Categorie');
 const { Op } = require("sequelize");
 const Order = require('../models/Order');
 const OrderPlats = require('../models/OrderPlats');
+const User = require("../models/User");
 const fs = require("fs");
 const qrcode = require("qrcode");
+const service = require("../services/email");
+
 
 // GET events all public events
 const event_listing = (req, res) => {
@@ -219,6 +222,16 @@ const event_image = (req, res) => {
   }
 }
 
+const event_sendInvitation = (req, res) => {
+  const event_id = req.body.event_id;
+
+  service.sendEmailInvitation(req.body.email, event_id)
+    .then(() => {
+      res.status(200).send({ "message": "Email envoyé !" });
+    })
+    .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }))
+}
+
 
 module.exports = {
   event_listing,
@@ -229,5 +242,6 @@ module.exports = {
   event_post,
   event_put,
   event_delete,
-  event_image
+  event_image,
+  event_sendInvitation
 }
