@@ -5,8 +5,7 @@ function checkCode(req, res, next) {
     Event.findAll({ where: { password: password } })
         .then((resp) => {
             if (Object.keys(resp).length > 0) {
-                console.log("existant");
-                return res.status(401).send({ "message": "Le mot de passe est déjà utilisé" });
+                return res.status(401).send({ "message": "Le mot de passe que vous avez saisie est déjà utilisé sur un autre évènement !" });
             } else {
                 next();
             }

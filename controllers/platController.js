@@ -15,7 +15,7 @@ const plat_listing = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "message": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 };
 
@@ -28,7 +28,7 @@ const plat_get = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "message": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 };
 
@@ -50,13 +50,13 @@ const plat_post = (req, res) => {
     })
         .then(result => {
             res.status(201).send({
-                "message": "Plat added to event",
+                "message": "Plat ajouté à l'évènement !",
                 "plat": result
             })
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "message": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 };
 
@@ -70,11 +70,11 @@ const plat_put = (req, res) => {
         description: req.body.description
     }, { where: { id: req.params.id } })
         .then(result => {
-            res.status(200).send({ "message": "Plat updated" });
+            res.status(200).send({ "message": "Plat mis à jour !" });
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "message": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
 }
 
@@ -86,11 +86,11 @@ const plat_delete = (req, res) => {
         }
     })
         .then(deleted_plat => {
-            res.status(200).send({ "message": "Plat deleted" })
+            res.status(200).send({ "message": "Plat supprimé !" })
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "message": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
 };
 

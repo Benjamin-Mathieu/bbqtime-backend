@@ -90,10 +90,10 @@ const user_login = (req, res) => {
     User.findOne({ where: { email: req.body.email } })
         .then(user => {
             if (user === null) {
-                res.status(400).send({ "message": "User not found" });
+                res.status(400).send({ "message": "L'utilisateur n'existe pas !" });
             }
             if (!bcrypt.compareSync(req.body.password, user.password)) {
-                res.status(401).send({ "message": "Wrong password" });
+                res.status(401).send({ "message": "Mauvais mot de passe !" });
             }
             else {
                 const token = jwt.sign({
@@ -103,7 +103,7 @@ const user_login = (req, res) => {
                     email: user.email,
                 }, process.env.JWT_KEY, function (err, token) {
                     res.status(200).send({
-                        "message": "User connected",
+                        "message": "Utilisateur connecté !",
                         "id": user.id,
                         "token": token,
                         "informations": {
@@ -120,7 +120,7 @@ const user_login = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "message": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
 }
 

@@ -3,7 +3,6 @@ const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 const OrderPlats = require('../models/OrderPlats');
 const Plat = require('../models/Plat');
-const { ProxyAuthenticationRequired } = require('http-errors');
 
 const order_listing = (req, res) => {
 
@@ -23,7 +22,7 @@ const order_listing = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 
@@ -41,7 +40,7 @@ const order_get = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 
@@ -76,11 +75,11 @@ const order_post = (req, res) => {
                         Plat.update({ stock: updateStock }, { where: { id: plat.id } });
                     })
             });
-            res.status(201).send({ "message": "Order created", "order": newOrder })
+            res.status(201).send({ "message": "Commande effectuée !", "order": newOrder })
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 
@@ -92,11 +91,11 @@ const order_delete = (req, res) => {
         }
     })
         .then(deleted_order => {
-            res.status(200).send({ "message": "Order deleted" })
+            res.status(200).send({ "message": "Commande supprimée !" })
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 

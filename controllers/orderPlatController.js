@@ -10,7 +10,7 @@ const orderplats_listing = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 
@@ -21,11 +21,11 @@ const orderplats_post = (req, res) => {
         quantity: req.body.quantity
     })
         .then(result => {
-            res.status(201).send({ "message": "Added to card" })
+            res.status(201).send({ "message": "Ajouté au panier" })
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "message": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 

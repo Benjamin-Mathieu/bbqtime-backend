@@ -7,7 +7,7 @@ function checkAuth(req, res, next) {
         req.userData = decoded_token;
         next();
     } catch (err) {
-        return res.status(401).send({ "message": "Invalid or token provided !" });
+        return res.status(401).send({ "message": "Token invalide ou manquant !" });
     }
 }
 

@@ -27,7 +27,7 @@ const event_listing = (req, res) => {
       res.status(200).send({ events });
     })
     .catch((err) => {
-      res.sendStatus(500).send({ "message": "Une erreur est survenue" });
+      res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
 
@@ -43,7 +43,7 @@ const event_created = (req, res) => {
       res.status(200).send({ events })
     })
     .catch(err => {
-      res.status(500).send({ "message": "Une erreur est survenue" });
+      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     })
 }
 
@@ -97,7 +97,7 @@ const event_manage = (req, res) => {
       }
 
     }).catch(err => {
-      res.status(500).send({ "message": "Une erreur est survenue: " + err });
+      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     })
 
 
@@ -113,7 +113,7 @@ const event_get = (req, res) => {
     })
     .catch(err => {
       console.log(err);
-      res.status(500).send({ "message": "Une erreur est survenue !" });
+      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
 
@@ -124,14 +124,14 @@ const event_join = (req, res) => {
   Event.findOne({ where: { password: password }, include: { model: Categorie, include: [Plat] } })
     .then(event => {
       if (event === null) {
-        res.status(400).send({ "message": "Aucun évènement est lié à ce Qrcode !" });
+        res.status(400).send({ "message": "Aucun évènement n'est lié à ce Qrcode !" });
       } else {
         res.status(200).send({ event });
       }
     })
     .catch(err => {
       console.log(err);
-      res.status(500).send({ "message": "Une erreur est survenue !" });
+      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
 
@@ -168,7 +168,7 @@ const event_post = (req, res) => {
         })
         .catch(err => {
           console.error(err);
-          res.status(500).send({ "message": "Une erreur est survenue !" });
+          res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
     });
 
@@ -188,7 +188,7 @@ const event_put = (req, res) => {
     })
     .catch(err => {
       console.log(err);
-      res.status(500).send({ "message": "Une erreur est survenue !" });
+      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
 
@@ -204,7 +204,7 @@ const event_delete = (req, res) => {
     })
     .catch(err => {
       console.log(err);
-      res.status(500).send({ "message": "Une erreur est survenue !" });
+      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
 
