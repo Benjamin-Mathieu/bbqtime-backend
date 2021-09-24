@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const eventController = require('../controllers/eventController');
-const checkAuthMiddleware = require('../middlewares/checkAuthorization');
+const checkAuthMiddleware = require('../middlewares/checkAuthorizationMiddleware');
 const uploadMiddleware = require('../middlewares/uploadMiddleware');
 const checkCodeMiddleware = require('../middlewares/checkCodeMiddleware');
 
-router.get('/', checkAuthMiddleware.checkAuth, eventController.event_listing);
+router.get('/', eventController.event_listing);
 router.get('/myEvents', checkAuthMiddleware.checkAuth, eventController.event_created);
 router.get('/myEvents/:id', checkAuthMiddleware.checkAuth, eventController.event_manage);
 router.get('/:id', checkAuthMiddleware.checkAuth, eventController.event_get);

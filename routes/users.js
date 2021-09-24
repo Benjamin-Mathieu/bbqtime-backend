@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const checkAuthMiddleware = require('../middlewares/checkAuthorization');
+const checkAuthMiddleware = require('../middlewares/checkAuthorizationMiddleware');
 
 /* GET users listing. */
 router.get('/', userController.user_listing);

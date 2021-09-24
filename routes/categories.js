@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const categorieController = require('../controllers/categorieController');
-const checkAuthMiddleware = require('../middlewares/checkAuthorization');
+const checkAuthMiddleware = require('../middlewares/checkAuthorizationMiddleware');
 const uploadMiddleware = require('../middlewares/uploadMiddleware');
 
 
