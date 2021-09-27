@@ -101,6 +101,7 @@ const user_login = (req, res) => {
                     name: user.name,
                     firstname: user.firstname,
                     email: user.email,
+                    password: req.body.password
                 }, process.env.JWT_KEY, function (err, token) {
                     res.status(200).send({
                         "message": "Utilisateur connecté !",
