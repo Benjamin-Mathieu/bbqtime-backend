@@ -1,9 +1,14 @@
 const Order = require('../models/Order');
 const Event = require('../models/Event');
+const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const OrderPlats = require('../models/OrderPlats');
 const Plat = require('../models/Plat');
 const notification = require("../services/notification");
+
+// ORDER_INPREPARATION = 0;
+// ORDER_PREPARED = 1;
+// ORDER_DELIVERED = 2;
 
 const order_listing = (req, res) => {
 
@@ -43,6 +48,39 @@ const order_get = (req, res) => {
             console.log(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
+}
+
+// PUT one order
+const order_put = (req, res) => {
+    // Collect users information
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded_token = jwt.decode(token);
+
+    const order_id = req.params.id;
+    const status = req.body.status;
+
+    Order.findByPk(order_id, { include: { model: Event, attributes: ["user_id"] } })
+        .then(order => {
+            console.log(decoded_token.id);
+            if (order.event.user_id === decoded_token.id) {
+                order.update({ status: status });
+                res.status(200).send({ "message": "Status de la commande mis à jour" });
+            } else {
+                res.status(401).send({ "message": "Vous n'avez pas les droits pour changer le status de cette commande" });
+            }
+
+        })
+        .catch(err => {
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+        })
+    // Order.update({ status: status }, { where: { id: order_id } })
+    //     .then(order => {
+    //         res.status(200).send({ "message": "Status mis à jour" });
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //         res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+    //     });
 }
 
 // POST new order
@@ -104,6 +142,7 @@ const order_delete = (req, res) => {
 module.exports = {
     order_listing,
     order_get,
+    order_put,
     order_post,
     order_delete
 }

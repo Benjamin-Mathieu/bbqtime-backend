@@ -1,3 +1,4 @@
+const { TINYINT } = require('sequelize');
 const Sequelize = require('sequelize');
 const db = require('../config/database');
 const Event = require('./Event');
@@ -36,6 +37,9 @@ const Order = db.define('order', {
         // validate: {
         //     isAfter: true
         // }
+    },
+    status: {
+        type: Sequelize.TINYINT
     }
 });
 
