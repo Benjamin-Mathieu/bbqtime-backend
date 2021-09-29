@@ -3,6 +3,7 @@ const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 const OrderPlats = require('../models/OrderPlats');
 const Plat = require('../models/Plat');
+const notification = require("../services/notification");
 
 const order_listing = (req, res) => {
 
@@ -75,7 +76,8 @@ const order_post = (req, res) => {
                         Plat.update({ stock: updateStock }, { where: { id: plat.id } });
                     })
             });
-            res.status(201).send({ "message": "Commande effectuée !", "order": newOrder })
+            res.status(201).send({ "message": "Commande effectuée !", "order": newOrder });
+            notification.sendNotificationNewOrder(req.body.event_id);
         })
         .catch(err => {
             console.log(err);

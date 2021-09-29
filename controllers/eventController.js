@@ -10,6 +10,7 @@ const User = require("../models/User");
 const fs = require("fs");
 const qrcode = require("qrcode");
 const service = require("../services/email");
+const notification = require("../services/notification");
 
 
 // GET events
@@ -43,7 +44,7 @@ const event_listing = (req, res) => {
         });
 
         const ids = eventsToShow.map(el => el.id); // return new array with all events id's
-        // Find if event is duplicated; if yes, total amount is calculated
+        // Find if event is duplicated; if yes, remove it from array
         ids.filter((id, index) => {
           const firstExistingId = ids.indexOf(id);
           if (firstExistingId !== index) {
@@ -91,6 +92,25 @@ const event_created = (req, res) => {
     })
 }
 
+// GET all orders by user of an event
+const event_orders = (req, res) => {
+  const event_id = req.params.id;
+
+  Order.findAll({
+    where: { event_id: event_id },
+    include: [
+      { model: User, attributes: ['id', 'name', 'firstname', 'email', 'phone'] },
+      { model: OrderPlats, attributes: ['quantity', 'plat_id'], include: { model: Plat, attributes: ['id', 'libelle', 'photo_url'] } }
+    ]
+  })
+    .then(orders => {
+      res.status(200).send({ orders });
+    })
+    .catch(err => {
+      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+    })
+}
+
 // GET event to manage orders
 const event_manage = (req, res) => {
   const event_id = req.params.id;
@@ -99,7 +119,6 @@ const event_manage = (req, res) => {
 
   Order.findAll({ where: { event_id: event_id }, include: { model: OrderPlats, include: [Plat] } })
     .then(orders => {
-
       if (orders.length > 0) {
         let platsOrderedInEvent = [];
 
@@ -168,7 +187,7 @@ const event_join = (req, res) => {
   Event.findOne({ where: { password: password }, include: { model: Categorie, include: [Plat] } })
     .then(event => {
       if (event === null) {
-        res.status(400).send({ "message": "Aucun évènement n'est lié à ce Qrcode !" });
+        res.status(400).send({ "message": "Aucun évènement n'est lié à ce qrcode, réessayez !" });
       } else {
         res.status(200).send({ event });
       }
@@ -276,7 +295,6 @@ const event_sendInvitation = (req, res) => {
     .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }))
 }
 
-
 module.exports = {
   event_listing,
   event_created,
@@ -287,5 +305,6 @@ module.exports = {
   event_put,
   event_delete,
   event_image,
-  event_sendInvitation
+  event_sendInvitation,
+  event_orders
 }

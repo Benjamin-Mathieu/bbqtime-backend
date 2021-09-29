@@ -8,6 +8,7 @@ const checkCodeMiddleware = require('../middlewares/checkCodeMiddleware');
 router.get('/', eventController.event_listing);
 router.get('/myEvents', checkAuthMiddleware.checkAuth, eventController.event_created);
 router.get('/myEvents/:id', checkAuthMiddleware.checkAuth, eventController.event_manage);
+router.get("/myEvents/:id/orders", checkAuthMiddleware.checkAuth, eventController.event_orders);
 router.get('/:id', eventController.event_get);
 router.get('/join/:password', eventController.event_join);
 router.post('/', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), checkCodeMiddleware.checkCode, eventController.event_post);
