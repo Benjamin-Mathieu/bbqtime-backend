@@ -12,68 +12,70 @@ const qrcode = require("qrcode");
 const service = require("../services/email");
 const notification = require("../services/notification");
 
+// GET event attented
+const event_attented = (req, res) => {
 
-// GET events
-const event_listing = (req, res) => {
-  // Check if user is connected - If yes return public +  participated events | Else return public events
   const token = req.headers.authorization.split(" ")[1]
-  if (token != 'null') {
-    const decoded_token = jwt.decode(token);
+  const decoded_token = jwt.decode(token);
+  const attentedEvents = [];
 
-    const eventsToShow = [];
+  Event.findAll({
+    where: {
+      [Op.not]: [
+        { user_id: decoded_token.id },
+      ]
+    }, include: Order
+  })
+    .then(events => {
+      if (events === null) {
+        res.status(200).send({ "message": "Vous ne participez à aucun évènement" });
+      }
 
-    Event.findAll({
-      where: {
-        [Op.not]: [
-          { user_id: decoded_token.id },
-        ]
-      }, include: Order
-    })
-      .then(events => {
-        if (events === null) {
-          res.status(200).send({ "message": "Pas d'évènement à afficher " });
-        }
-
-        events.forEach(event => {
-          if (event.private == 0) eventsToShow.push(event);
-          event.orders.forEach(order => {
-            if (order.user_id === decoded_token.id) {
-              eventsToShow.push(event);
-            }
-          });
-        });
-
-        const ids = eventsToShow.map(el => el.id); // return new array with all events id's
-        // Find if event is duplicated; if yes, remove it from array
-        ids.filter((id, index) => {
-          const firstExistingId = ids.indexOf(id);
-          if (firstExistingId !== index) {
-            eventsToShow.splice(index, 1);
+      events.forEach(event => {
+        event.orders.forEach(order => {
+          if (order.user_id === decoded_token.id) {
+            attentedEvents.push(event);
           }
         });
-        res.status(200).send({ "events": eventsToShow });
-      })
-      .catch((err) => {
-        res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
       });
-  }
 
-  else {
-    Event.findAll({
-      where: { private: 0 }
+      res.status(200).send({ "events": attentedEvents });
     })
-      .then(events => {
-        if (events === null) {
-          res.status(200).send({ "message": "Pas d'évènement publiques à afficher " });
-        }
-        res.status(200).send({ events });
-      })
-      .catch((err) => {
-        res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
-      });
-  }
+    .catch((err) => {
+      res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
+    });
+}
+// GET events
+const event_public = (req, res) => {
 
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded_token = jwt.decode(token);
 
+  let currentPage = 1;
+  const size = 4;
+  let offset = (currentPage - 1) * size;
+
+  Event.findAll({
+    limit: size,
+    offset: offset,
+    where: {
+      [Op.not]: [
+        { user_id: decoded_token.id },
+      ],
+      [Op.and]: [
+        { private: 0 },
+      ]
+    }, include: Order
+  })
+    .then(events => {
+      if (events === null) {
+        res.status(200).send({ "message": "Pas d'évènement à afficher " });
+      }
+      res.status(200).send({ "events": events });
+    })
+    .catch((err) => {
+      res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
+    });
 }
 
 // GET events created by user
@@ -296,7 +298,8 @@ const event_sendInvitation = (req, res) => {
 }
 
 module.exports = {
-  event_listing,
+  event_public,
+  event_attented,
   event_created,
   event_manage,
   event_get,

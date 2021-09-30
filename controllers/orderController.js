@@ -95,7 +95,7 @@ const order_post = (req, res) => {
         event_id: req.body.event_id,
         user_id: decoded_token.id,
         cost: totalOrder,
-        heure: req.body.heure,
+        heure: new Date(),
         status: 0
     })
         .then(newOrder => {
