@@ -5,10 +5,7 @@ const jwt = require('jsonwebtoken');
 const OrderPlats = require('../models/OrderPlats');
 const Plat = require('../models/Plat');
 const notification = require("../services/notification");
-
-// ORDER_INPREPARATION = 0;
-// ORDER_PREPARED = 1;
-// ORDER_DELIVERED = 2;
+const email = require("../services/email");
 
 const order_listing = (req, res) => {
 
@@ -50,8 +47,9 @@ const order_get = (req, res) => {
         });
 }
 
-// PUT one order
+// PUT one order | ORDER_INPREPARATION = 0 | ORDER_PREPARED = 1 | ORDER_DELIVERED = 2
 const order_put = (req, res) => {
+
     // Collect users information
     const token = req.headers.authorization.split(" ")[1];
     const decoded_token = jwt.decode(token);
@@ -60,27 +58,25 @@ const order_put = (req, res) => {
     const status = req.body.status;
 
     Order.findByPk(order_id, { include: { model: Event, attributes: ["user_id"] } })
-        .then(order => {
+        .then(async order => {
             console.log(decoded_token.id);
-            if (order.event.user_id === decoded_token.id) {
-                order.update({ status: status });
-                res.status(200).send({ "message": "Status de la commande mis à jour" });
-            } else {
-                res.status(401).send({ "message": "Vous n'avez pas les droits pour changer le status de cette commande" });
+
+            if (order.event.user_id !== decoded_token.id) {
+                return res.status(401).send({
+                    message:
+                        "Vous n'avez pas les droits pour changer le status de cette commande",
+                });
             }
+
+            await order.update({ status: status });
+            notification.sendNotificationOrderStatus(order_id);
+
+            return res.status(200).send({ message: 'Status de la commande mis à jour' });
 
         })
         .catch(err => {
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
-    // Order.update({ status: status }, { where: { id: order_id } })
-    //     .then(order => {
-    //         res.status(200).send({ "message": "Status mis à jour" });
-    //     })
-    //     .catch(err => {
-    //         console.log(err);
-    //         res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-    //     });
 }
 
 // POST new order
@@ -99,7 +95,8 @@ const order_post = (req, res) => {
         event_id: req.body.event_id,
         user_id: decoded_token.id,
         cost: totalOrder,
-        heure: req.body.heure
+        heure: req.body.heure,
+        status: 0
     })
         .then(newOrder => {
             req.body.plats.forEach(plat => {

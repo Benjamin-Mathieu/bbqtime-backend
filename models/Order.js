@@ -1,4 +1,3 @@
-const { TINYINT } = require('sequelize');
 const Sequelize = require('sequelize');
 const db = require('../config/database');
 const Event = require('./Event');

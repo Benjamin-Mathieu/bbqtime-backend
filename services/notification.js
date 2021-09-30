@@ -1,6 +1,7 @@
 const axios = require("axios");
 const Event = require("../models/Event");
 const User = require("../models/User");
+const Order = require("../models/Order");
 
 const headers = {
     "Content-Type": "application/json; charset=utf-8",
@@ -29,6 +30,37 @@ const serviceNotification = {
             throw error;
         }
     },
+
+    sendNotificationOrderStatus: async (order_id) => {
+        try {
+            const order = await Order.findByPk(order_id, { include: { model: User } });
+            const userId = order.user.id.toString();
+            let status = "";
+
+            switch (order.status) {
+                case 0:
+                    status = "en préparation";
+                    break;
+                case 1:
+                    status = "préparée, vous pouvez venir la chercher";
+                    break;
+                case 2:
+                    status = "livrée";
+                    break;
+                default:
+                    console.log(`Sorry, we are out of ${order.status}.`);
+            }
+            console.log("status commande =>", status);
+            console.log("order.status", order.status);
+            message.contents.en = `Votre commande est ${status} !`
+            message.include_external_user_ids.push(userId.toString());
+
+            await serviceNotification.sendNotification(message);
+        } catch (error) {
+            throw error;
+        }
+    },
+
     sendNotification: async (data) => {
         try {
             const req = await axios({
