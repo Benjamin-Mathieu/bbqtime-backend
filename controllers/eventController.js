@@ -12,34 +12,29 @@ const qrcode = require("qrcode");
 const service = require("../services/email");
 const notification = require("../services/notification");
 
-// GET event attented
-const event_attented = (req, res) => {
+// GET event participate
+const event_participate = (req, res) => {
 
   const token = req.headers.authorization.split(" ")[1]
   const decoded_token = jwt.decode(token);
-  const attentedEvents = [];
 
-  Event.findAll({
+  let currentPage = parseInt(req.params.page);
+  const size = 4;
+  let offset = (currentPage - 1) * size;
+
+  Event.findAndCountAll({
+    limit: size,
+    offset: offset,
     where: {
       [Op.not]: [
         { user_id: decoded_token.id },
       ]
-    }, include: Order
+    }, include: { model: Order, where: { user_id: decoded_token.id } }
   })
     .then(events => {
-      if (events === null) {
-        res.status(200).send({ "message": "Vous ne participez à aucun évènement" });
-      }
+      let totalPages = Math.ceil(events.count / size);
 
-      events.forEach(event => {
-        event.orders.forEach(order => {
-          if (order.user_id === decoded_token.id) {
-            attentedEvents.push(event);
-          }
-        });
-      });
-
-      res.status(200).send({ "events": attentedEvents });
+      res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
     })
     .catch((err) => {
       res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
@@ -51,11 +46,12 @@ const event_public = (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
 
-  let currentPage = 1;
+
+  let currentPage = parseInt(req.params.page);
   const size = 4;
   let offset = (currentPage - 1) * size;
 
-  Event.findAll({
+  Event.findAndCountAll({
     limit: size,
     offset: offset,
     where: {
@@ -71,7 +67,11 @@ const event_public = (req, res) => {
       if (events === null) {
         res.status(200).send({ "message": "Pas d'évènement à afficher " });
       }
-      res.status(200).send({ "events": events });
+      let totalPages = Math.ceil(events.count / size);
+
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage <= 0) currentPage = 1;
+      res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
     })
     .catch((err) => {
       res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
@@ -299,7 +299,7 @@ const event_sendInvitation = (req, res) => {
 
 module.exports = {
   event_public,
-  event_attented,
+  event_participate,
   event_created,
   event_manage,
   event_get,

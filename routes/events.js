@@ -5,8 +5,8 @@ const checkAuthMiddleware = require('../middlewares/checkAuthorizationMiddleware
 const uploadMiddleware = require('../middlewares/uploadMiddleware');
 const checkCodeMiddleware = require('../middlewares/checkCodeMiddleware');
 
-router.get('/public', eventController.event_public);
-router.get('/attented', eventController.event_attented);
+router.get('/public/:page', eventController.event_public);
+router.get('/participate/:page', eventController.event_participate);
 router.get('/myEvents', checkAuthMiddleware.checkAuth, eventController.event_created);
 router.get('/myEvents/:id', checkAuthMiddleware.checkAuth, eventController.event_manage);
 router.get("/myEvents/:id/orders", checkAuthMiddleware.checkAuth, eventController.event_orders);
