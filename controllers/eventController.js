@@ -15,7 +15,7 @@ const notification = require("../services/notification");
 // GET event participate
 const event_participate = (req, res) => {
 
-  const token = req.headers.authorization.split(" ")[1]
+  const token = req.headers.authorization.split(" ")[1];
   const decoded_token = jwt.decode(token);
 
   let currentPage = parseInt(req.params.page);
@@ -42,40 +42,63 @@ const event_participate = (req, res) => {
 }
 // GET events
 const event_public = (req, res) => {
-
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded_token = jwt.decode(token);
-
-
   let currentPage = parseInt(req.params.page);
   const size = 4;
   let offset = (currentPage - 1) * size;
 
-  Event.findAndCountAll({
-    limit: size,
-    offset: offset,
-    where: {
-      [Op.not]: [
-        { user_id: decoded_token.id },
-      ],
-      [Op.and]: [
-        { private: 0 },
-      ]
-    }, include: Order
-  })
-    .then(events => {
-      if (events === null) {
-        res.status(200).send({ "message": "Pas d'évènement à afficher " });
+  if (req.headers.authorization.split(" ")[1] == "null") {
+    Event.findAndCountAll({
+      limit: size,
+      offset: offset,
+      where: {
+        [Op.and]: [
+          { private: 0 }
+        ]
       }
-      let totalPages = Math.ceil(events.count / size);
-
-      if (currentPage > totalPages) currentPage = totalPages;
-      if (currentPage <= 0) currentPage = 1;
-      res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
     })
-    .catch((err) => {
-      res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
-    });
+      .then(events => {
+        if (events === null) {
+          res.status(200).send({ "message": "Pas d'évènement à afficher " });
+        }
+        let totalPages = Math.ceil(events.count / size);
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage <= 0) currentPage = 1;
+        res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
+      })
+      .catch((err) => {
+        res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
+      });
+  } else {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded_token = jwt.decode(token);
+
+    Event.findAndCountAll({
+      limit: size,
+      offset: offset,
+      where: {
+        [Op.not]: [
+          { user_id: decoded_token.id },
+        ],
+        [Op.and]: [
+          { private: 0 },
+        ]
+      }, include: Order
+    })
+      .then(events => {
+        if (events === null) {
+          res.status(200).send({ "message": "Pas d'évènement à afficher " });
+        }
+        let totalPages = Math.ceil(events.count / size);
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage <= 0) currentPage = 1;
+        res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
+      })
+      .catch((err) => {
+        res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
+      });
+  }
 }
 
 // GET events created by user
@@ -287,14 +310,24 @@ const event_image = (req, res) => {
   }
 }
 
-const event_sendInvitation = (req, res) => {
+const event_sendInvitation = async (req, res) => {
   const event_id = req.body.event_id;
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded_token = jwt.decode(token);
 
-  service.sendEmailInvitation(req.body.email, event_id)
-    .then(() => {
-      res.status(200).send({ "message": "Email envoyé !" });
-    })
-    .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }))
+  const event = await Event.findByPk(event_id, { include: { model: User } });
+
+  if (event.user.id === decoded_token.id) {
+    service.sendEmailInvitation(req.body.email, event_id)
+      .then(() => {
+        res.status(200).send({ "message": "Email envoyé !" });
+      })
+      .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }))
+  } else {
+    res.status(401).send({ "message": "Vous n'avez pas les droits pour inviter sur cet évènement" });
+  }
+
+
 }
 
 module.exports = {
