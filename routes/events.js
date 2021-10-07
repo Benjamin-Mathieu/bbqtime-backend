@@ -13,7 +13,7 @@ router.get("/myEvents/:id/orders", checkAuthMiddleware.checkAuth, eventControlle
 router.get('/:id', eventController.event_get);
 router.get('/join/:password', eventController.event_join);
 router.post('/', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), checkCodeMiddleware.checkCode, eventController.event_post);
-router.put('/:id', checkAuthMiddleware.checkAuth, eventController.event_put);
+router.put('/', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), eventController.event_put);
 router.delete('/:id', checkAuthMiddleware.checkAuth, eventController.event_delete);
 router.get("/pictures/:filename", eventController.event_image);
 router.post("/mail/invitation", eventController.event_sendInvitation);

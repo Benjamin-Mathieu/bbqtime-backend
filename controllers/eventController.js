@@ -259,24 +259,40 @@ const event_post = (req, res) => {
           res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
     });
-
-
 }
 
 // PUT event
 const event_put = (req, res) => {
-  Event.update({ name: req.body.name },
-    {
-      where: {
-        id: req.params.id
-      }
-    })
-    .then(updated_event => {
-      res.status(200).send({ "message": "Evènement mis à jour !" })
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+  // Collect users information
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded_token = jwt.decode(token);
+
+  const event_id = req.body.id;
+
+  qrcode.toDataURL(req.body.password, { width: 500 })
+    .then(url => {
+      Event.findByPk(event_id, { where: { user_id: decoded_token.id } })
+        .then(async event => {
+
+          const UPDATED_EVENT = await event.update({
+            name: req.body.name,
+            password: req.body.password,
+            address: req.body.address,
+            city: req.body.city,
+            zipcode: req.body.zipcode,
+            date: req.body.date,
+            description: req.body.description,
+            photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
+            private: req.body.private,
+            qrcode: url
+          });
+
+          return res.status(200).send({ "message": 'Evènement mis à jour', "event": UPDATED_EVENT });
+
+        })
+        .catch(err => {
+          res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+        })
     });
 }
 
