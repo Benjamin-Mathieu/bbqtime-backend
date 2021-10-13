@@ -49,9 +49,9 @@ const categorie_post = (req, res) => {
 
 // UPDATE category
 const categorie_put = (req, res) => {
-  Categorie.update({ libelle: req.body.libelle }, { where: { id: req.params.id } })
-    .then(result => {
-      res.status(200).send({ "message": "Catégorie mis à jour !" });
+  Categorie.update({ libelle: req.body.libelle }, { where: { id: req.body.id } })
+    .then(categorie => {
+      res.status(200).send({ "message": "Catégorie mis à jour !", "categorie": categorie });
     })
     .catch(err => {
       console.log(err);
@@ -63,11 +63,11 @@ const categorie_put = (req, res) => {
 const categorie_delete = (req, res) => {
   Categorie.destroy({
     where: {
-      id: req.params.id
+      id: req.body.id
     }
   })
-    .then(deleted_product => {
-      res.status(200).send({ "message": "Catégorie supprimée !" })
+    .then(plat => {
+      res.status(200).send({ "message": "Catégorie supprimée !", "plat": plat })
     })
     .catch(err => {
       console.log(err);

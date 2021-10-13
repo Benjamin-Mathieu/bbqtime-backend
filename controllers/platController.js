@@ -64,13 +64,13 @@ const plat_post = (req, res) => {
 const plat_put = (req, res) => {
     Plat.update({
         libelle: req.body.libelle,
-        photo_url: req.body.photo_url,
+        photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
         stock: req.body.stock,
         price: req.body.price,
         description: req.body.description
-    }, { where: { id: req.params.id } })
-        .then(result => {
-            res.status(200).send({ "message": "Plat mis à jour !" });
+    }, { where: { id: req.body.id } })
+        .then(plat => {
+            res.status(200).send({ "message": "Plat mis à jour !", "plat": plat });
         })
         .catch(err => {
             console.log(err);
@@ -82,11 +82,11 @@ const plat_put = (req, res) => {
 const plat_delete = (req, res) => {
     Plat.destroy({
         where: {
-            id: req.params.id
+            id: req.body.id
         }
     })
-        .then(deleted_plat => {
-            res.status(200).send({ "message": "Plat supprimé !" })
+        .then(plat => {
+            res.status(200).send({ "message": "Plat supprimé !", "plat": plat })
         })
         .catch(err => {
             console.log(err);
