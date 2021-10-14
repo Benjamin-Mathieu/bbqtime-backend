@@ -17,7 +17,7 @@ const user_listing = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 
@@ -40,7 +40,7 @@ const user_get = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 
@@ -67,7 +67,27 @@ const user_post = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+        });
+}
+
+const user_put = (req, res) => {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded_token = jwt.decode(token);
+
+    User.update({
+        email: req.body.data.email,
+        name: req.body.data.name,
+        firstname: req.body.data.firstname,
+        phone: req.body.data.phone,
+        zipcode: req.body.data.zipcode,
+    },
+        { where: { id: decoded_token.id } })
+        .then(user => {
+            res.status(200).send({ "message": "Compte mis à jour", "user": user });
+        })
+        .catch(err => {
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 
@@ -83,7 +103,7 @@ const user_delete = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({ "error": "Something went wrong" });
+            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
 
@@ -184,6 +204,7 @@ module.exports = {
     user_listing,
     user_get,
     user_post,
+    user_put,
     user_delete,
     user_login,
     user_send_code,
