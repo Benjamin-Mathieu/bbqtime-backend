@@ -7,7 +7,15 @@ function checkAuth(req, res, next) {
         req.userData = decoded_token;
         next();
     } catch (err) {
-        return res.status(401).send({ "message": "Token invalide ou manquant !" });
+        if (err.name === "TokenExpiredError") {
+            return res.status(401).send({ "message": 'jwt expired' });
+        }
+        if (err.name === "JsonWebTokenError") {
+            return res.status(401).send({ "message": 'jwt malformed' });
+        }
+        if (err.name === "NotBeforeError") {
+            return res.status(401).send({ "message": 'jwt not active' });
+        }
     }
 }
 
