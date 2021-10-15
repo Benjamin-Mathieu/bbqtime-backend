@@ -1,2 +1,4 @@
-node_modules
-uploads
+/node_modules
+/uploads
+nodemon.json
+/config/database.js
