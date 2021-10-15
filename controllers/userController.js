@@ -63,7 +63,7 @@ const user_post = (req, res) => {
         }
     })
         .then(result => {
-            res.status(201).send({ "message": "Account has been created" });
+            res.status(201).send({ "message": "Compte crée" });
         })
         .catch(err => {
             console.log(err);
@@ -72,9 +72,6 @@ const user_post = (req, res) => {
 }
 
 const user_put = (req, res) => {
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded_token = jwt.decode(token);
-
     User.update({
         email: req.body.data.email,
         name: req.body.data.name,
@@ -82,7 +79,7 @@ const user_put = (req, res) => {
         phone: req.body.data.phone,
         zipcode: req.body.data.zipcode,
     },
-        { where: { id: decoded_token.id } })
+        { where: { id: req.userData.id } })
         .then(user => {
             res.status(200).send({ "message": "Compte mis à jour", "user": user });
         })
@@ -118,27 +115,24 @@ const user_login = (req, res) => {
                 res.status(401).send({ "message": "Mauvais mot de passe !" });
             }
             else {
-                const token = jwt.sign({
+                jwt.sign({
                     id: user.id,
-                    name: user.name,
-                    firstname: user.firstname,
-                    email: user.email,
-                    password: req.body.password
-                }, process.env.JWT_KEY, function (err, token) {
-                    res.status(200).send({
-                        "message": "Utilisateur connecté !",
-                        "id": user.id,
-                        "token": token,
-                        "informations": {
+                }, process.env.JWT_KEY, { expiresIn: '2 days' },
+                    function (err, token) {
+                        res.status(200).send({
+                            "message": "Utilisateur connecté !",
                             "id": user.id,
-                            "email": user.email,
-                            "firstname": user.firstname,
-                            "name": user.name,
-                            "phone": user.phone,
-                            "zipcode": user.zipcode,
-                        }
-                    })
-                });
+                            "token": token,
+                            "informations": {
+                                "id": user.id,
+                                "email": user.email,
+                                "firstname": user.firstname,
+                                "name": user.name,
+                                "phone": user.phone,
+                                "zipcode": user.zipcode,
+                            }
+                        })
+                    });
             }
         })
         .catch(err => {

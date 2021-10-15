@@ -12,11 +12,8 @@ const qrcode = require("qrcode");
 const service = require("../services/email");
 const notification = require("../services/notification");
 
-// GET event participate
+// GET participate event 
 const event_participate = (req, res) => {
-
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded_token = jwt.decode(token);
 
   let currentPage = parseInt(req.params.page);
   const size = 4;
@@ -27,9 +24,9 @@ const event_participate = (req, res) => {
     offset: offset,
     where: {
       [Op.not]: [
-        { user_id: decoded_token.id },
+        { user_id: req.userData.id },
       ]
-    }, include: { model: Order, where: { user_id: decoded_token.id } }
+    }, include: { model: Order, where: { user_id: req.userData.id } }
   })
     .then(events => {
       let totalPages = Math.ceil(events.count / size);
@@ -40,7 +37,7 @@ const event_participate = (req, res) => {
       res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
-// GET events
+// GET public events
 const event_public = (req, res) => {
   let currentPage = parseInt(req.params.page);
   const size = 4;
@@ -83,7 +80,7 @@ const event_public = (req, res) => {
         [Op.and]: [
           { private: 0 },
         ]
-      }, include: Order
+      }
     })
       .then(events => {
         if (events === null) {
@@ -93,6 +90,19 @@ const event_public = (req, res) => {
 
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage <= 0) currentPage = 1;
+
+        // let eventsToShow = [];
+
+        // events.rows.forEach(async function (event) {
+        //   const test = await Order.findOne({ where: { event_id: event.id } });
+        //   if (test) {
+        //     event.participate = true;
+        //   } else {
+        //     event.participate = false;
+        //   }
+        //   eventsToShow.push(event);
+        // });
+        // console.log("events =>", eventsToShow);
         res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
       })
       .catch((err) => {
@@ -103,12 +113,7 @@ const event_public = (req, res) => {
 
 // GET events created by user
 const event_created = (req, res) => {
-
-  // Get user_id
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded_token = jwt.decode(token);
-
-  Event.findAll({ where: { user_id: decoded_token.id } })
+  Event.findAll({ where: { user_id: req.userData.id } })
     .then(events => {
       res.status(200).send({ events })
     })
@@ -139,8 +144,6 @@ const event_orders = (req, res) => {
 // GET event to manage orders
 const event_manage = (req, res) => {
   const event_id = req.params.id;
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded_token = jwt.decode(token);
 
   Order.findAll({ where: { event_id: event_id }, include: { model: OrderPlats, include: [Plat] } })
     .then(orders => {
@@ -227,19 +230,11 @@ const event_join = (req, res) => {
 // POST new event
 const event_post = (req, res) => {
 
-  // Get token of connected user
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded_token = jwt.decode(token);
-
-  // Hash password
-  // const saltRounds = 10;
-  // const hash = bcrypt.hashSync(req.body.password, saltRounds);
-
   // Generate QrCode and create event
   qrcode.toDataURL(req.body.password, { width: 500 })
     .then(url => {
       Event.create({
-        user_id: decoded_token.id,
+        user_id: req.userData.id,
         name: req.body.name,
         password: req.body.password,
         address: req.body.address,
@@ -263,15 +258,11 @@ const event_post = (req, res) => {
 
 // PUT event
 const event_put = (req, res) => {
-  // Collect users information
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded_token = jwt.decode(token);
-
   const event_id = req.body.id;
 
   qrcode.toDataURL(req.body.password, { width: 500 })
     .then(url => {
-      Event.findByPk(event_id, { where: { user_id: decoded_token.id } })
+      Event.findByPk(event_id, { where: { user_id: req.userData.id } })
         .then(async event => {
 
           const UPDATED_EVENT = await event.update({
@@ -303,8 +294,8 @@ const event_delete = (req, res) => {
       id: req.params.id
     }
   })
-    .then(deleted_event => {
-      res.status(200).send({ "message": "Evènement supprimé !" })
+    .then(event => {
+      res.status(200).send({ "message": "Evènement supprimé !", "event": event })
     })
     .catch(err => {
       console.log(err);
@@ -328,12 +319,9 @@ const event_image = (req, res) => {
 
 const event_sendInvitation = async (req, res) => {
   const event_id = req.body.event_id;
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded_token = jwt.decode(token);
-
   const event = await Event.findByPk(event_id, { include: { model: User } });
 
-  if (event.user.id === decoded_token.id) {
+  if (event.user.id === req.userData.id) {
     service.sendEmailInvitation(req.body.email, event_id)
       .then(() => {
         res.status(200).send({ "message": "Email envoyé !" });

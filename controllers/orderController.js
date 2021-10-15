@@ -8,17 +8,12 @@ const notification = require("../services/notification");
 const email = require("../services/email");
 
 const order_listing = (req, res) => {
-
-    // Collect users information
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded_token = jwt.decode(token);
-
     Order.findAll({
         include: [
             { model: Event },
             { model: OrderPlats, attributes: ['id', 'plat_id', 'quantity'], include: [Plat] }
         ],
-        where: { user_id: decoded_token.id }
+        where: { user_id: req.userData.id }
     })
         .then(orders => {
             res.status(200).send({ "orders": orders });
@@ -49,19 +44,13 @@ const order_get = (req, res) => {
 
 // PUT one order | ORDER_INPREPARATION = 0 | ORDER_PREPARED = 1 | ORDER_DELIVERED = 2
 const order_put = (req, res) => {
-
-    // Collect users information
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded_token = jwt.decode(token);
-
     const order_id = req.params.id;
     const status = req.body.status;
 
     Order.findByPk(order_id, { include: { model: Event, attributes: ["user_id"] } })
         .then(async order => {
-            console.log(decoded_token.id);
 
-            if (order.event.user_id !== decoded_token.id) {
+            if (order.event.user_id !== req.userData.id) {
                 return res.status(401).send({
                     message:
                         "Vous n'avez pas les droits pour changer le status de cette commande",
@@ -81,19 +70,15 @@ const order_put = (req, res) => {
 
 // POST new order
 const order_post = (req, res) => {
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded_token = jwt.decode(token);
     let totalOrder = 0;
-
 
     req.body.plats.forEach(plat => {
         totalOrder += plat.price * plat.qty;
     });
 
-
     Order.create({
         event_id: req.body.event_id,
-        user_id: decoded_token.id,
+        user_id: req.userData.id,
         cost: totalOrder,
         heure: new Date(),
         status: 0
@@ -127,8 +112,8 @@ const order_delete = (req, res) => {
             id: req.params.id
         }
     })
-        .then(deleted_order => {
-            res.status(200).send({ "message": "Commande supprimée !" })
+        .then(order => {
+            res.status(200).send({ "message": "Commande supprimée !", "order": order })
         })
         .catch(err => {
             console.log(err);

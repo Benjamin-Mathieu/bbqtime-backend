@@ -6,7 +6,7 @@ const uploadMiddleware = require('../middlewares/uploadMiddleware');
 const checkCodeMiddleware = require('../middlewares/checkCodeMiddleware');
 
 router.get('/public/:page', eventController.event_public);
-router.get('/participate/:page', eventController.event_participate);
+router.get('/participate/:page', checkAuthMiddleware.checkAuth, eventController.event_participate);
 router.get('/myEvents', checkAuthMiddleware.checkAuth, eventController.event_created);
 router.get('/myEvents/:id', checkAuthMiddleware.checkAuth, eventController.event_manage);
 router.get("/myEvents/:id/orders", checkAuthMiddleware.checkAuth, eventController.event_orders);
@@ -16,6 +16,6 @@ router.post('/', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image')
 router.put('/update', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), checkCodeMiddleware.checkCode, eventController.event_put);
 router.delete('/:id', checkAuthMiddleware.checkAuth, eventController.event_delete);
 router.get("/pictures/:filename", eventController.event_image);
-router.post("/mail/invitation", eventController.event_sendInvitation);
+router.post("/mail/invitation", checkAuthMiddleware.checkAuth, eventController.event_sendInvitation);
 
 module.exports = router;
