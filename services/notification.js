@@ -10,8 +10,7 @@ const headers = {
 
 const message = {
     app_id: process.env.APPID_ONESIGNAL,
-    contents: { "en": "" },
-    include_external_user_ids: []
+    contents: { "en": "" }
 };
 
 const serviceNotification = {
@@ -21,8 +20,8 @@ const serviceNotification = {
             const userId = event.user.id.toString();
             console.log("userId", userId);
 
-            message.contents.en = `Une nouvelle commande a été passée sur votre évènement ${event.name}`
-            message.include_external_user_ids.push(userId.toString());
+            message.contents.en = `Une nouvelle commande a été passée sur votre évènement ${event.name}`;
+            message.include_external_user_ids = [userId.toString()];
             console.log("message =>", message);
 
             await serviceNotification.sendNotification(message);
@@ -52,8 +51,8 @@ const serviceNotification = {
             }
             console.log("status commande =>", status);
             console.log("order.status", order.status);
-            message.contents.en = `Votre commande est ${status} !`
-            message.include_external_user_ids.push(userId.toString());
+            message.contents.en = `Votre commande est ${status} !`;
+            message.include_external_user_ids = [userId.toString()];
 
             await serviceNotification.sendNotification(message);
         } catch (error) {
