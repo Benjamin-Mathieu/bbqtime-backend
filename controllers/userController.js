@@ -21,29 +21,6 @@ const user_listing = (req, res) => {
         });
 }
 
-// GET one user
-const user_get = (req, res) => {
-    const user_id = req.params.id;
-
-    User.findByPk(user_id)
-        .then(user => {
-            res.status(200).send(
-                {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    firstname: user.firstname,
-                    phone: user.phone,
-                    zipcode: user.zipcode
-                }
-            )
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-        });
-}
-
 // POST new user
 const user_post = (req, res) => {
 
@@ -193,15 +170,35 @@ const user_reset_password = async (req, res) => {
 
 }
 
+const user_is_logged = async (req, res) => {
+    const user = await User.findOne({ where: { id: req.userData.id } });
+    if (user) {
+        res.status(200).send(
+            {
+                "userIsLogged": true,
+                "informations": {
+                    "id": user.id,
+                    "email": user.email,
+                    "firstname": user.firstname,
+                    "name": user.name,
+                    "phone": user.phone,
+                    "zipcode": user.zipcode,
+                }
+            });
+    } else {
+        res.status(200).send({ "userIsLogged": false });
+    }
+}
+
 
 module.exports = {
     user_listing,
-    user_get,
     user_post,
     user_put,
     user_delete,
     user_login,
     user_send_code,
     user_check_code,
-    user_reset_password
+    user_reset_password,
+    user_is_logged
 }
