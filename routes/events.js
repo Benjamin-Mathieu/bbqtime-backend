@@ -14,7 +14,7 @@ router.get('/:id', eventController.event_get);
 router.get('/join/:password', eventController.event_join);
 router.post('/', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), checkCodeMiddleware.checkCode, eventController.event_post);
 router.put('/update', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), checkCodeMiddleware.checkCode, eventController.event_put);
-router.delete('/:id', checkAuthMiddleware.checkAuth, eventController.event_delete);
+router.delete('/delete', checkAuthMiddleware.checkAuth, eventController.event_delete);
 router.get("/pictures/:filename", eventController.event_image);
 router.post("/mail/invitation", checkAuthMiddleware.checkAuth, eventController.event_sendInvitation);
 

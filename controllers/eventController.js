@@ -289,13 +289,24 @@ const event_put = (req, res) => {
 
 // DELETE event
 const event_delete = (req, res) => {
-  Event.destroy({
+
+  Event.findOne({
     where: {
-      id: req.params.id
-    }
+      id: req.body.id,
+      user_id: req.userData.id
+    },
+    include: { model: Order }
   })
     .then(event => {
-      res.status(200).send({ "message": "Evènement supprimé !", "event": event })
+      if (event.orders.length > 0) {
+        res.status(400).send({ "message": "Suppression de l'évènement impossible car des commandes sont déjà en cours" });
+      }
+      else {
+        Event.destroy({
+          where: { id: event.id }
+        });
+        res.status(200).send({ "message": "Evènement supprimé" });
+      }
     })
     .catch(err => {
       console.log(err);
