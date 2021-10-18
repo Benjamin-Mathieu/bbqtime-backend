@@ -1,8 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
-const Plat = require('./Plat');
 const User = require('./User');
-const Categorie = require('./Categorie');
 
 const Event = db.define('event', {
     id: {
@@ -11,18 +9,8 @@ const Event = db.define('event', {
         autoIncrement: true,
         primaryKey: true
     },
-    // user_id: {
-    //     type: Sequelize.INTEGER,
-    //     references: {         // Event belongsTo User 1:1
-    //         model: 'user',
-    //         key: 'id'
-    //     }
-    // },
     name: {
         type: Sequelize.STRING,
-        // validate: {
-        //     isAlpha: true
-        // }
     },
     password: {
         type: Sequelize.STRING
@@ -51,7 +39,9 @@ const Event = db.define('event', {
     qrcode: {
         type: Sequelize.TEXT
     }
-});
+},
+    { paranoid: true }
+);
 
 Event.belongsTo(User, { foreignKey: 'user_id' });
 User.hasMany(Event, { foreignKey: 'user_id' });
