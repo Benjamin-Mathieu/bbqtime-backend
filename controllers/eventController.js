@@ -210,7 +210,6 @@ const event_get = (req, res) => {
       res.status(200).send({ event });
     })
     .catch(err => {
-      console.log(err);
       res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
@@ -228,7 +227,6 @@ const event_join = (req, res) => {
       }
     })
     .catch(err => {
-      console.log(err);
       res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
@@ -257,7 +255,6 @@ const event_post = (req, res) => {
           res.status(201).send({ "message": "Evènement crée !", "event": resp });
         })
         .catch(err => {
-          console.error(err);
           res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
     });
@@ -299,26 +296,32 @@ const event_delete = (req, res) => {
 
   Event.findOne({
     where: {
-      id: req.body.id,
-      user_id: req.userData.id
+      id: req.body.id
     },
     include: { model: Order }
   })
     .then(event => {
-      if (event.orders.length > 0) {
-        res.status(400).send({ "message": "Suppression de l'évènement impossible car des commandes sont déjà en cours" });
+      if (!event) {
+        return res.status(404).send({ "message": "L'évènement n'existe pas" });
       }
-      else {
+
+      if (event && (event.user_id !== req.userData.id)) {
+        return res.status(401).send({ "message": "Vous n'avez pas les droits pour supprimer cet évènement" });
+      }
+
+      if (event && (event.user_id === req.userData.id) && event.orders.length > 0) {
+        return res.status(400).send({ "message": "Suppression de l'évènement impossible car des commandes sont déjà en cours" });
+      } else {
         Event.destroy({
           where: { id: event.id }
-        });
-        res.status(200).send({ "message": "Evènement supprimé" });
+        })
+          .then(() => {
+            res.status(200).send({ "message": "Evènement supprimé" });
+          })
+          .catch(err => res.status(400).send({ "message": `Erreur pendant la suppression: ${err}` }));
       }
     })
-    .catch(err => {
-      console.log(err);
-      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-    });
+    .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }));
 }
 
 const event_image = (req, res) => {
@@ -330,7 +333,6 @@ const event_image = (req, res) => {
       res.end(data);
     });
   } catch (err) {
-    console.log(err);
     res.status(500).json({});
   }
 }
