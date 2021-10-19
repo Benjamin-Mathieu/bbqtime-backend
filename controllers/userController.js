@@ -157,10 +157,12 @@ const user_check_code = async (req, res) => {
 const user_reset_password = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     const decoded_token = jwt.decode(token);
+    const saltRounds = 10;
+    const hash = bcrypt.hashSync(req.body.new_password, saltRounds);
 
     const user = await User.findOne({ where: { id: decoded_token.data.id } });
     if (user) {
-        await user.update({ password: req.body.new_password });
+        await user.update({ password: hash });
         await ResetPasswords.destroy({ where: { user_id: decoded_token.data.id } });
         res.status(200).send({ "message": "Mot de passe mis à jour" });
 
