@@ -6,6 +6,7 @@ const OrderPlats = require('../models/OrderPlats');
 const Plat = require('../models/Plat');
 const notification = require("../services/notification");
 const email = require("../services/email");
+const Associate = require('../models/Associate');
 
 const order_listing = (req, res) => {
     Order.findAll({
@@ -47,21 +48,25 @@ const order_put = (req, res) => {
     const order_id = req.params.id;
     const status = req.body.status;
 
-    Order.findByPk(order_id, { include: { model: Event, attributes: ["user_id"] } })
+    Order.findByPk(order_id, { include: { model: Event, attributes: ["user_id", "id"] } })
         .then(async order => {
 
-            if (order.event.user_id !== req.userData.id) {
-                return res.status(401).send({
-                    message:
-                        "Vous n'avez pas les droits pour changer le status de cette commande",
-                });
+            const event = await Event.findByPk(order.event.id, { include: [Associate] });
+            let ids = [];
+            ids.push(event.user_id);
+
+            event.associate_events.forEach(async (associate) => {
+                ids.push(associate.user_id);
+            });
+
+            if (ids.includes(req.userData.id)) {
+                await order.update({ status: status });
+                notification.sendNotificationOrderStatus(order_id);
+
+                res.status(200).send({ "message": 'Status de la commande mis à jour', "order": order, "event": event });
+            } else {
+                res.status(401).send({ "message": "Vous n'avez pas les droits pour changer le status de cette commande !" });
             }
-
-            await order.update({ status: status });
-            notification.sendNotificationOrderStatus(order_id);
-
-            return res.status(200).send({ message: 'Status de la commande mis à jour' });
-
         })
         .catch(err => {
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
@@ -91,9 +96,13 @@ const order_post = (req, res) => {
                     quantity: plat.qty
                 })
                     .then(() => {
-                        // Update stock
-                        let updateStock = plat.stock - plat.qty
-                        Plat.update({ stock: updateStock }, { where: { id: plat.id } });
+                        if (plat.qty <= plat.stock) {
+                            // Update stock
+                            let updateStock = plat.stock - plat.qty
+                            Plat.update({ stock: updateStock }, { where: { id: plat.id } });
+                        } else {
+                            return res.status(400).send({ "message": `Le plat ${plat.libelle} est en rupture de stock`, "plat": plat });
+                        }
                     })
             });
             res.status(201).send({ "message": "Commande effectuée !", "order": newOrder });
