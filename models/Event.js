@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
 const User = require('./User');
+const Associate = require('./Associate');
 
 const Event = db.define('event', {
     id: {
@@ -46,6 +47,7 @@ const Event = db.define('event', {
 Event.belongsTo(User, { foreignKey: 'user_id' });
 User.hasMany(Event, { foreignKey: 'user_id' });
 
-
+Associate.belongsTo(Event, { foreignKey: 'event_id' });
+Event.hasMany(Associate, { foreignKey: 'event_id' });
 
 module.exports = Event;

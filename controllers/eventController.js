@@ -1,16 +1,18 @@
-const Event = require('../models/Event');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const Plat = require('../models/Plat');
-const Categorie = require('../models/Categorie');
 const { Op } = require("sequelize");
-const Order = require('../models/Order');
-const OrderPlats = require('../models/OrderPlats');
-const User = require("../models/User");
 const fs = require("fs");
 const qrcode = require("qrcode");
 const service = require("../services/email");
 const notification = require("../services/notification");
+
+const Event = require('../models/Event');
+const Plat = require('../models/Plat');
+const Categorie = require('../models/Categorie');
+const Order = require('../models/Order');
+const OrderPlats = require('../models/OrderPlats');
+const User = require("../models/User");
+const Associate = require("../models/Associate");
 
 // GET participate event 
 const event_participate = (req, res) => {
@@ -112,14 +114,19 @@ const event_public = (req, res) => {
 }
 
 // GET events created by user
-const event_created = (req, res) => {
-  Event.findAll({ where: { user_id: req.userData.id } })
-    .then(events => {
-      res.status(200).send({ events })
-    })
-    .catch(err => {
-      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-    })
+const event_created = async (req, res) => {
+  try {
+    const my_events = await Event.findAll({ where: { user_id: req.userData.id } });
+    const associated_events = await Associate.findAll({ where: { user_id: req.userData.id }, include: [Event] });
+
+    associated_events.forEach(e => {
+      my_events.push(e.event);
+    });
+
+    res.status(200).send({ "events": my_events });
+  } catch (error) {
+    res.status(500).send({ "message": `Une erreur s'est produite ${error}` });
+  }
 }
 
 // GET all orders by user of an event
@@ -341,8 +348,40 @@ const event_sendInvitation = async (req, res) => {
   } else {
     res.status(401).send({ "message": "Vous n'avez pas les droits pour inviter sur cet évènement" });
   }
+}
 
+const event_addAssociate = async (req, res) => {
+  const event = await Event.findOne({
+    where: {
+      [Op.and]: [
+        { id: req.body.event_id },
+        { user_id: req.userData.id }
+      ]
+    }
+  });
 
+  if (event) {
+    const user = await User.findOne({ where: { email: req.body.email } });
+    if (user) {
+      Associate.findOrCreate({
+        where: {
+          event_id: req.body.event_id,
+          user_id: user.id
+        }
+      })
+        .then(async () => {
+          await service.sendEmailPreventAdminAdd(user.email, event.id);
+          res.status(201).send({ "message": "Administrateur ajouté" });
+        })
+        .catch(err => {
+          res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` });
+        })
+    } else {
+      res.status(400).send({ "message": `L'utilisateur n'existe pas` });
+    }
+  } else {
+    res.status(400).send({ "message": `Vous ne pouvez pas ajouter un administrateur sur cet évènement` });
+  }
 }
 
 module.exports = {
@@ -357,5 +396,6 @@ module.exports = {
   event_delete,
   event_image,
   event_sendInvitation,
-  event_orders
+  event_orders,
+  event_addAssociate
 }
