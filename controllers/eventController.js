@@ -359,15 +359,25 @@ const event_addAssociate = async (req, res) => {
         { id: req.body.event_id },
         { user_id: req.userData.id }
       ]
-    }
+    },
+    include: [Associate]
   });
 
   if (event) {
     const user = await User.findOne({ where: { email: req.body.email } });
+
     if (user) {
+      let ids = [];
+      event.associate_events.forEach(associate => {
+        ids.push(associate.user_id);
+      });
+      if (ids.includes(user.id)) {
+        return res.status(400).send({ "message": `L'utilisateur correspondant à l'adresse ${user.email} est déjà administrateur` });
+      }
+
       Associate.findOrCreate({
         where: {
-          event_id: req.body.event_id,
+          event_id: event.id,
           user_id: user.id
         }
       })
