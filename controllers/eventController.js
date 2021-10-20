@@ -82,30 +82,18 @@ const event_public = (req, res) => {
         [Op.and]: [
           { private: 0 },
         ]
-      }
+      }, include: { model: Order, attributes: ["user_id"] }
     })
       .then(events => {
         if (events === null) {
           res.status(200).send({ "message": "Pas d'évènement à afficher " });
         }
-        let totalPages = Math.ceil(events.count / size);
+        let totalPages = Math.ceil(events.rows.length / size);
 
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage <= 0) currentPage = 1;
 
-        // let eventsToShow = [];
-
-        // events.rows.forEach(async function (event) {
-        //   const test = await Order.findOne({ where: { event_id: event.id } });
-        //   if (test) {
-        //     event.participate = true;
-        //   } else {
-        //     event.participate = false;
-        //   }
-        //   eventsToShow.push(event);
-        // });
-        // console.log("events =>", eventsToShow);
-        res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
+        res.status(200).send({ "count": events.rows.length, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
       })
       .catch((err) => {
         res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
@@ -229,6 +217,57 @@ const event_join = (req, res) => {
     .catch(err => {
       res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
+}
+
+// POST duplicate event
+const event_duplicate = async (req, res) => {
+  const event = await Event.findOne({ where: { id: req.body.id }, include: { model: Categorie, include: [Plat] } });
+  const qrc = await qrcode.toDataURL(event.password, { width: 500 });
+
+  const new_event = await Event.create({
+    user_id: req.userData.id,
+    name: event.name,
+    password: event.password,
+    address: event.address,
+    city: event.city,
+    zipcode: event.zipcode,
+    date: event.date,
+    description: event.description,
+    photo_url: event.photo_url,
+    private: event.private,
+    qrcode: qrc
+  })
+
+  event.categories.forEach(async (categorie) => {
+    try {
+      const new_ctg = await Categorie.create({
+        event_id: new_event.id,
+        libelle: categorie.libelle
+      });
+
+      categorie.plats.forEach(async (plat) => {
+        await Plat.create({
+          libelle: plat.libelle,
+          photo_url: plat.photo_url,
+          user_id: req.userData.id,
+          stock: plat.stock,
+          price: plat.price,
+          description: plat.description,
+          category_id: new_ctg.id
+        });
+      });
+
+    } catch (error) {
+      res.status(400).send({ "message": `Une erreur s'est produite pendant la copie: ${err}` });
+    }
+  });
+
+  const event_duplicated = await Event.findByPk(new_event.id);
+  if (event_duplicated) {
+    res.status(201).send({ "message": "Evènement copié avec succés", "event": event_duplicated });
+  } else {
+    res.status(400).send({ "message": `Une erreur s'est produite pendant la copie` });
+  }
 }
 
 
@@ -409,5 +448,6 @@ module.exports = {
   event_image,
   event_sendInvitation,
   event_orders,
-  event_addAssociate
+  event_addAssociate,
+  event_duplicate
 }

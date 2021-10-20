@@ -18,4 +18,6 @@ router.put('/update', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('im
 router.delete('/delete', checkAuthMiddleware.checkAuth, eventController.event_delete);
 router.get("/pictures/:filename", eventController.event_image);
 router.post("/mail/invitation", checkAuthMiddleware.checkAuth, eventController.event_sendInvitation);
+router.post("/duplicate", checkAuthMiddleware.checkAuth, eventController.event_duplicate);
+
 module.exports = router;
