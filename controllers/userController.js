@@ -35,8 +35,7 @@ const user_post = (req, res) => {
             name: req.body.name,
             firstname: req.body.firstname,
             phone: req.body.phone,
-            password: hash,
-            zipcode: req.body.zipcode
+            password: hash
         }
     })
         .then(result => {
@@ -53,8 +52,7 @@ const user_put = (req, res) => {
         email: req.body.data.email,
         name: req.body.data.name,
         firstname: req.body.data.firstname,
-        phone: req.body.data.phone,
-        zipcode: req.body.data.zipcode,
+        phone: req.body.data.phone
     },
         { where: { id: req.userData.id } })
         .then(user => {
@@ -105,8 +103,7 @@ const user_login = (req, res) => {
                                 "email": user.email,
                                 "firstname": user.firstname,
                                 "name": user.name,
-                                "phone": user.phone,
-                                "zipcode": user.zipcode,
+                                "phone": user.phone
                             }
                         })
                     });
@@ -183,8 +180,7 @@ const user_is_logged = async (req, res) => {
                     "email": user.email,
                     "firstname": user.firstname,
                     "name": user.name,
-                    "phone": user.phone,
-                    "zipcode": user.zipcode,
+                    "phone": user.phone
                 }
             });
     } else {
