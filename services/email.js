@@ -30,16 +30,29 @@ const service = {
         }
     },
 
-    sendEmailPreventAdminAdd: async (email, event_id) => {
+    sendEmailPreventAdminAdd: async (email, event_id, new_user, pass_new_user) => {
         try {
             const event = await Event.findByPk(event_id, { include: { model: User } });
-
-            await service.sendEmail(email, `BBQ-Time: Ajout administrateur par ${event.user.name} ${event.user.firstname}`,
-                `<h2>Vous êtes administrateur sur l'évènement ${event.name} de ${event.user.name} ${event.user.firstname} !</h2>
+            if (new_user) {
+                console.log("in if new_user");
+                await service.sendEmail(email, `BBQ-Time: Ajout administrateur par ${event.user.name} ${event.user.firstname}`,
+                    `<h2>Vous êtes administrateur sur l'évènement ${event.name} de ${event.user.name} ${event.user.firstname} !</h2>
+                <div>
+                    <p>Veuillez-vous connectez avec ses identifiants : </b></p>
+                    <p>E-mail : ${new_user.email} Mot de passe : ${pass_new_user}</p>
+                </div>
+                <div>
+                    <p>Vous pourrez ensuite accéder à l'évènement et gérer les commandes dans la catégorie "Mes évènements"</b></p>
+                </div>
+                `);
+            } else {
+                await service.sendEmail(email, `BBQ-Time: Ajout administrateur par ${event.user.name} ${event.user.firstname}`,
+                    `<h2>Vous êtes administrateur sur l'évènement ${event.name} de ${event.user.name} ${event.user.firstname} !</h2>
                 <div>
                     <p>Vous pouvez dès à présent accéder à l'évènement et gérer les commandes dans la catégorie "Mes évènements"</b></p>
                 </div>
-                `)
+                `);
+            }
         } catch (error) {
             throw error;
         }

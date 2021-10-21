@@ -428,7 +428,35 @@ const event_addAssociate = async (req, res) => {
           res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` });
         })
     } else {
-      res.status(400).send({ "message": `L'utilisateur n'existe pas` });
+
+      // Generate password in order to create new user
+      const rInt = (min, max) => {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      };
+      const code = rInt(100000, 999999);
+
+      const saltRounds = 10;
+      const hash = bcrypt.hashSync(code.toString(), saltRounds);
+
+      User.create({
+        email: req.body.email,
+        name: "Benjamin",
+        firstname: "Mathieu",
+        phone: "0102030405",
+        password: hash,
+        zipcode: "88000"
+      })
+        .then(async (resNewUser) => {
+          console.log("resNewUser new_user =>", resNewUser.id);
+          await Associate.create({ user_id: resNewUser.id, event_id: event.id });
+          await service.sendEmailPreventAdminAdd(resNewUser.email, event.id, resNewUser, code);
+          res.status(201).send({ "message": "Administrateur ajouté" });
+        })
+        .catch(err => {
+          res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` });
+        })
     }
   } else {
     res.status(400).send({ "message": `Vous ne pouvez pas ajouter un administrateur sur cet évènement` });
