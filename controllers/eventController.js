@@ -203,20 +203,20 @@ const event_get = (req, res) => {
 }
 
 // GET event with password typed by user
-const event_join = (req, res) => {
+const event_join = async (req, res) => {
   const password = req.params.password;
 
-  Event.findOne({ where: { password: password }, include: { model: Categorie, include: [Plat] } })
-    .then(event => {
-      if (event === null) {
-        res.status(400).send({ "message": "Aucun évènement n'est lié à ce qrcode, réessayez !" });
-      } else {
-        res.status(200).send({ event });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-    });
+  try {
+    const event = await Event.findOne({ where: { password: password }, include: { model: Categorie, include: [Plat] } });
+
+    if (event) {
+      res.status(200).send({ "message": "Evènement rejoint", "event": event });
+    } else {
+      res.status(400).send({ "message": "Aucun évènement n'est lié à ce code, réessayez !" });
+    }
+  } catch (error) {
+    res.status(500).send({ "message": `Une erreur s'est produite ${error}` });
+  }
 }
 
 // POST duplicate event
@@ -272,31 +272,31 @@ const event_duplicate = async (req, res) => {
 
 
 // POST new event
-const event_post = (req, res) => {
+const event_post = async (req, res) => {
 
-  // Generate QrCode and create event
-  qrcode.toDataURL(req.body.password, { width: 500 })
-    .then(url => {
-      Event.create({
-        user_id: req.userData.id,
-        name: req.body.name,
-        password: req.body.password,
-        address: req.body.address,
-        city: req.body.city,
-        zipcode: req.body.zipcode,
-        date: req.body.date,
-        description: req.body.description,
-        photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
-        private: req.body.private,
-        qrcode: url
-      })
-        .then(resp => {
-          res.status(201).send({ "message": "Evènement crée !", "event": resp });
-        })
-        .catch(err => {
-          res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-        })
-    });
+  const event = await Event.create({
+    user_id: req.userData.id,
+    name: req.body.name,
+    password: req.body.password,
+    address: req.body.address,
+    city: req.body.city,
+    zipcode: req.body.zipcode,
+    date: req.body.date,
+    description: req.body.description,
+    photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
+    private: req.body.private,
+    qrcode: ""
+  });
+
+  if (event) {
+    // Generate QrCode
+    const new_password = event.id.toString() + event.password
+    const qrc = await qrcode.toDataURL(new_password, { width: 500 });
+    await event.update({ qrcode: qrc, password: new_password });
+    res.status(201).send({ "message": "Evènement crée avec succés", "event": event });
+  } else {
+    res.status(500).send({ "message": `Une erreur s'est produite pendant la création de l'évènement` });
+  }
 }
 
 // PUT event
