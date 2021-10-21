@@ -1,5 +1,4 @@
 const Categorie = require('../models/Categorie');
-const Event = require('../models/Event');
 const Plat = require('../models/Plat');
 const { Op } = require("sequelize");
 
@@ -22,6 +21,7 @@ const categorie_listing = (req, res) => {
 
 // POST new category
 const categorie_post = (req, res) => {
+
   Categorie.findOrCreate({
     where: { [Op.and]: [{ libelle: req.body.libelle }, { event_id: req.body.event_id }] },
     defaults: { event_id: req.body.event_id, libelle: req.body.libelle }
@@ -35,7 +35,7 @@ const categorie_post = (req, res) => {
         });
       } else {
         res.status(400).send({
-          "message": "Catégorie existe déjà !",
+          "message": "Catégorie existante !",
           "categorie": result
         });
       }
