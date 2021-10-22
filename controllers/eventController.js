@@ -137,8 +137,9 @@ const event_orders = (req, res) => {
 }
 
 // GET event to manage orders
-const event_manage = (req, res) => {
+const event_manage = async (req, res) => {
   const event_id = req.params.id;
+  const event = await Event.findByPk(event_id);
 
   Order.findAll({ where: { event_id: event_id }, include: { model: OrderPlats, include: [Plat] } })
     .then(orders => {
@@ -177,9 +178,9 @@ const event_manage = (req, res) => {
         const reducer = (previousValue, currentValue) => previousValue + currentValue;
         const totalBudget = totalAmounts.reduce(reducer); // sum of all amounts
 
-        res.status(200).send({ "id": event_id, "plats": platsOrderedInEvent, "totalBudget": totalBudget });
+        res.status(200).send({ "plats": platsOrderedInEvent, "totalBudget": totalBudget, "event": event });
       } else {
-        res.status(200).send({ "id": event_id, "message": "Aucune commande pour le moment" });
+        res.status(200).send({ "message": "Aucune commande pour le moment", "event": event });
       }
 
     }).catch(err => {
@@ -222,12 +223,11 @@ const event_join = async (req, res) => {
 // POST duplicate event
 const event_duplicate = async (req, res) => {
   const event = await Event.findOne({ where: { id: req.body.id }, include: { model: Categorie, include: [Plat] } });
-  const qrc = await qrcode.toDataURL(event.password, { width: 500 });
 
   const new_event = await Event.create({
     user_id: req.userData.id,
     name: event.name,
-    password: event.password,
+    password: "",
     address: event.address,
     city: event.city,
     zipcode: event.zipcode,
@@ -235,8 +235,14 @@ const event_duplicate = async (req, res) => {
     description: event.description,
     photo_url: event.photo_url,
     private: event.private,
-    qrcode: qrc
-  })
+    qrcode: ""
+  });
+
+  // Update password & qrcode
+  const slice_password = event.password.slice(event.password.indexOf("-"));
+  const new_password = `${new_event.id}${slice_password}`;
+  const qrc = await qrcode.toDataURL(new_password, { width: 500 });
+  new_event.update({ password: new_password, qrcode: qrc });
 
   event.categories.forEach(async (categorie) => {
     try {
@@ -262,11 +268,12 @@ const event_duplicate = async (req, res) => {
     }
   });
 
-  const event_duplicated = await Event.findByPk(new_event.id);
-  if (event_duplicated) {
+  try {
+    const event_duplicated = await Event.findByPk(new_event.id);
     res.status(201).send({ "message": "Evènement copié avec succés", "event": event_duplicated });
-  } else {
-    res.status(400).send({ "message": `Une erreur s'est produite pendant la copie` });
+
+  } catch (error) {
+    res.status(400).send({ "message": `Une erreur s'est produite pendant la copie: ${error}` });
   }
 }
 
@@ -290,7 +297,7 @@ const event_post = async (req, res) => {
 
   if (event) {
     // Generate QrCode
-    const new_password = event.id.toString() + event.password
+    const new_password = event.id.toString() + "-" + event.password;
     const qrc = await qrcode.toDataURL(new_password, { width: 500 });
     await event.update({ qrcode: qrc, password: new_password });
     res.status(201).send({ "message": "Evènement crée avec succés", "event": event });
@@ -300,34 +307,50 @@ const event_post = async (req, res) => {
 }
 
 // PUT event
-const event_put = (req, res) => {
-  const event_id = req.body.id;
+const event_put = async (req, res) => {
+  const event = await Event.findByPk(req.body.id, { where: { user_id: req.userData.id } });
 
-  qrcode.toDataURL(req.body.password, { width: 500 })
-    .then(url => {
-      Event.findByPk(event_id, { where: { user_id: req.userData.id } })
-        .then(async event => {
+  if (event) {
+    try {
+      if (req.body.password !== event.password) {
+        const new_password = req.body.id.toString() + "-" + req.body.password;
+        const qrc = await qrcode.toDataURL(new_password, { width: 500 });
 
-          const UPDATED_EVENT = await event.update({
-            name: req.body.name,
-            password: req.body.password,
-            address: req.body.address,
-            city: req.body.city,
-            zipcode: req.body.zipcode,
-            date: req.body.date,
-            description: req.body.description,
-            photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
-            private: req.body.private,
-            qrcode: url
-          });
+        const update_event = await event.update({
+          name: req.body.name,
+          password: new_password,
+          address: req.body.address,
+          city: req.body.city,
+          zipcode: req.body.zipcode,
+          date: req.body.date,
+          description: req.body.description,
+          photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
+          private: req.body.private,
+          qrcode: qrc
+        });
 
-          return res.status(200).send({ "message": 'Evènement mis à jour', "event": UPDATED_EVENT });
+        res.status(200).send({ "message": 'Evènement mis à jour', "event": update_event });
+      } else {
+        const update_event = await event.update({
+          name: req.body.name,
+          address: req.body.address,
+          city: req.body.city,
+          zipcode: req.body.zipcode,
+          date: req.body.date,
+          description: req.body.description,
+          photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
+          private: req.body.private,
+        });
 
-        })
-        .catch(err => {
-          res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-        })
-    });
+        res.status(200).send({ "message": 'Evènement mis à jour', "event": update_event });
+      }
+
+    } catch (error) {
+      res.status(500).send({ "message": `Une erreur s'est produite ${error}` });
+    }
+  } else {
+    res.status(404).send({ "message": `L'évènement n'existe pas` });
+  }
 }
 
 // DELETE event
@@ -360,7 +383,7 @@ const event_delete = (req, res) => {
           .catch(err => res.status(400).send({ "message": `Erreur pendant la suppression: ${err}` }));
       }
     })
-    .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }));
+    .catch(err => res.status(500).send({ "message": `Erreur: ${err}` }));
 }
 
 const event_image = (req, res) => {
