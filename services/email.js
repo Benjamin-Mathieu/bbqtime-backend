@@ -9,7 +9,7 @@ const headers = {
     "api-key": process.env.API_SENDINBLUE_KEY,
     accept: "application/json",
 };
-const service = {
+const email = {
     sendEmailInvitation: async (email, event_id) => {
         try {
             const event = await Event.findByPk(event_id, { include: { model: User } });
@@ -78,26 +78,30 @@ const service = {
     },
 
     async sendEmail(email, subject, htmlContent) {
-        await axios.post(
-            "https://api.sendinblue.com/v3/smtp/email",
-            {
-                sender: {
-                    name: "BBQ Time",
-                    email: "ben88200@gmail.com",
-                },
-                to: [
-                    {
-                        email,
+        try {
+            await axios.post(
+                "https://api.sendinblue.com/v3/smtp/email",
+                {
+                    sender: {
+                        name: "BBQ Time",
+                        email: "ben88200@gmail.com",
                     },
-                ],
-                subject,
-                htmlContent,
-            },
-            {
-                headers,
-            }
-        );
+                    to: [
+                        {
+                            email,
+                        },
+                    ],
+                    subject,
+                    htmlContent,
+                },
+                {
+                    headers,
+                }
+            );
+        } catch (error) {
+            console.error(error);
+        }
     },
 }
 
-module.exports = service;
+module.exports = email;

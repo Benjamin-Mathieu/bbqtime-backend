@@ -1,7 +1,6 @@
 const Plat = require('../models/Plat');
-const Event = require('../models/Event');
-const jwt = require('jsonwebtoken');
 const Categorie = require('../models/Categorie');
+const fs = require('fs');
 
 // GET plat with categorie
 const plat_listing = (req, res) => {
@@ -56,7 +55,8 @@ const plat_post = (req, res) => {
 };
 
 // UPDATE plat
-const plat_put = (req, res) => {
+const plat_put = async (req, res) => {
+
     Plat.update({
         libelle: req.body.libelle,
         photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
@@ -74,7 +74,16 @@ const plat_put = (req, res) => {
 }
 
 // DELETE plat
-const plat_delete = (req, res) => {
+const plat_delete = async (req, res) => {
+    const plat = await Plat.findByPk(req.body.id);
+    const img = plat.photo_url.split("/");
+    console.log("img name =>", img[5]);
+    try {
+        fs.unlinkSync(`${process.env.IMAGE_PATH}${img[5]}`); // file removed
+    } catch (err) {
+        console.error(err)
+    }
+
     Plat.destroy({
         where: {
             id: req.body.id

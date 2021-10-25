@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const { Op } = require("sequelize");
 const fs = require("fs");
 const qrcode = require("qrcode");
-const service = require("../services/email");
+const email = require("../services/email");
 const notification = require("../services/notification");
 
 const Event = require('../models/Event');
@@ -354,7 +354,14 @@ const event_put = async (req, res) => {
 }
 
 // DELETE event
-const event_delete = (req, res) => {
+const event_delete = async (req, res) => {
+  const event = await Event.findByPk(req.body.id);
+  const img = event.photo_url.split("/");
+  try {
+    fs.unlinkSync(`${process.env.IMAGE_PATH}${img[5]}`); // file removed
+  } catch (err) {
+    console.error(err)
+  }
 
   Event.findOne({
     where: {
@@ -404,7 +411,7 @@ const event_sendInvitation = async (req, res) => {
   const event = await Event.findByPk(event_id, { include: { model: User } });
 
   if (event.user.id === req.userData.id) {
-    service.sendEmailInvitation(req.body.email, event_id)
+    email.sendEmailInvitation(req.body.email, event_id)
       .then(() => {
         res.status(200).send({ "message": "Email envoyé !" });
       })
@@ -444,7 +451,7 @@ const event_addAssociate = async (req, res) => {
         }
       })
         .then(async () => {
-          await service.sendEmailPreventAdminAdd(user.email, event.id);
+          await email.sendEmailPreventAdminAdd(user.email, event.id);
           res.status(201).send({ "message": "Administrateur ajouté" });
         })
         .catch(err => {
@@ -474,7 +481,7 @@ const event_addAssociate = async (req, res) => {
         .then(async (resNewUser) => {
           console.log("resNewUser new_user =>", resNewUser.id);
           await Associate.create({ user_id: resNewUser.id, event_id: event.id });
-          await service.sendEmailPreventAdminAdd(resNewUser.email, event.id, resNewUser, code);
+          await email.sendEmailPreventAdminAdd(resNewUser.email, event.id, resNewUser, code);
           res.status(201).send({ "message": "Administrateur ajouté" });
         })
         .catch(err => {
