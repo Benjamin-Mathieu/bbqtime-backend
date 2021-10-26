@@ -1,7 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
 const Plat = require('../models/Plat');
-const Order = require('../models/Order');
 
 const OrderPlats = db.define('orders_plats', {
     id: {
@@ -33,5 +32,6 @@ const OrderPlats = db.define('orders_plats', {
 });
 
 OrderPlats.belongsTo(Plat, { foreignKey: 'plat_id' });
+Plat.hasMany(OrderPlats, { foreignKey: 'plat_id' });
 
 module.exports = OrderPlats;

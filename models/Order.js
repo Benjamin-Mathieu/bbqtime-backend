@@ -46,6 +46,9 @@ Order.belongsTo(Event, { foreignKey: 'event_id' });
 Event.hasMany(Order, { foreignKey: 'event_id' });
 
 Order.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(Order, { foreignKey: 'user_id' });
+
+OrderPlats.belongsTo(Order, { foreignKey: 'order_id' });
 Order.hasMany(OrderPlats, { foreignKey: 'order_id' });
 
 module.exports = Order;
