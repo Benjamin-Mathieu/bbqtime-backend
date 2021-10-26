@@ -3,20 +3,13 @@ const Plat = require('../models/Plat');
 const { Op } = require("sequelize");
 
 // GET all categories from an event
-const categorie_listing = (req, res) => {
-  Categorie.findAll({ where: { event_id: req.params.id }, include: [Plat] })
-    .then(result => {
-
-      let categories = [];
-      result.forEach(categorie => {
-        categories.push(categorie);
-      });
-      res.status(200).send({ "categories": categories });
-
-    })
-    .catch(err => {
-      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-    });
+const categorie_listing = async (req, res) => {
+  try {
+    const categories = await Categorie.findAll({ where: { event_id: req.params.id }, include: [Plat] });
+    res.status(200).send({ categories });
+  } catch (err) {
+    res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+  }
 }
 
 // POST new category
@@ -26,17 +19,17 @@ const categorie_post = (req, res) => {
     where: { [Op.and]: [{ libelle: req.body.libelle }, { event_id: req.body.event_id }] },
     defaults: { event_id: req.body.event_id, libelle: req.body.libelle }
   })
-    .then(result => {
+    .then(resp => {
 
       if (result[1]) {
         res.status(201).send({
           "message": "Catégorie ajoutée !",
-          "categorie": result
+          "categorie": resp
         });
       } else {
         res.status(400).send({
           "message": "Catégorie existante !",
-          "categorie": result
+          "categorie": resp
         });
       }
 
