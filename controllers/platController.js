@@ -58,17 +58,17 @@ const plat_post = (req, res) => {
 const plat_put = async (req, res) => {
 
     Plat.update({
+        category_id: req.body.category_id,
         libelle: req.body.libelle,
         photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
         stock: req.body.stock,
         price: req.body.price,
         description: req.body.description
     }, { where: { id: req.body.id } })
-        .then(plat => {
-            res.status(200).send({ "message": "Plat mis à jour !", "plat": plat });
+        .then(() => {
+            res.status(200).send({ "message": "Plat mis à jour !" });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
 }
