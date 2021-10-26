@@ -10,11 +10,11 @@ const headers = {
     accept: "application/json",
 };
 const email = {
-    sendEmailInvitation: async (email, event_id) => {
+    sendEmailInvitation: async (mailUser, event_id) => {
         try {
             const event = await Event.findByPk(event_id, { include: { model: User } });
 
-            await service.sendEmail(email, "Invitation à un évènement !",
+            await email.sendEmail(mailUser, "Invitation à un évènement !",
                 `<h2>Vous êtes invités à l'évènement ${event.name} de ${event.user.name} ${event.user.firstname} !</h2>
                 <div>
                     <ul>
@@ -30,12 +30,11 @@ const email = {
         }
     },
 
-    sendEmailPreventAdminAdd: async (email, event_id, new_user, pass_new_user) => {
+    sendEmailPreventAdminAdd: async (mailUser, event_id, new_user, pass_new_user) => {
         try {
             const event = await Event.findByPk(event_id, { include: { model: User } });
             if (new_user) {
-                console.log("in if new_user");
-                await service.sendEmail(email, `BBQ-Time: Ajout administrateur par ${event.user.name} ${event.user.firstname}`,
+                await email.sendEmail(mailUser, `BBQ-Time: Ajout administrateur par ${event.user.name} ${event.user.firstname}`,
                     `<h2>Vous êtes administrateur sur l'évènement ${event.name} de ${event.user.name} ${event.user.firstname} !</h2>
                 <div>
                     <p>Veuillez-vous connectez avec ses identifiants : </b></p>
@@ -46,7 +45,7 @@ const email = {
                 </div>
                 `);
             } else {
-                await service.sendEmail(email, `BBQ-Time: Ajout administrateur par ${event.user.name} ${event.user.firstname}`,
+                await email.sendEmail(mailUser, `BBQ-Time: Ajout administrateur par ${event.user.name} ${event.user.firstname}`,
                     `<h2>Vous êtes administrateur sur l'évènement ${event.name} de ${event.user.name} ${event.user.firstname} !</h2>
                 <div>
                     <p>Vous pouvez dès à présent accéder à l'évènement et gérer les commandes dans la catégorie "Mes évènements"</b></p>
@@ -58,7 +57,7 @@ const email = {
         }
     },
 
-    sendEmailResetPassword: async (user_email) => {
+    sendEmailResetPassword: async (mailUser) => {
         try {
             const rInt = (min, max) => {
                 min = Math.ceil(min);
@@ -68,7 +67,7 @@ const email = {
 
             const code = rInt(100000, 999999);
 
-            await service.sendEmail(user_email, "Demande de réinitialisation du mot de passe",
+            await email.sendEmail(mailUser, "Demande de réinitialisation du mot de passe",
                 `<div>Veuillez entrer le code suivant dans l'application: <b>${code}</b></div>`);
 
             return code;
