@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
+const User = require('./User');
 
 const Associate = db.define('associate_events', {
     id: {
@@ -15,5 +16,7 @@ const Associate = db.define('associate_events', {
         type: Sequelize.INTEGER,
     }
 });
+
+Associate.belongsTo(User, { foreignKey: 'user_id' });
 
 module.exports = Associate;
