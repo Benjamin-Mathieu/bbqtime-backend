@@ -1,11 +1,14 @@
+// Libraries
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Op } = require("sequelize");
 const fs = require("fs");
 const qrcode = require("qrcode");
-const email = require("../services/email");
-const notification = require("../services/notification");
 
+// Services
+const email = require("../services/email");
+
+// Models
 const Event = require('../models/Event');
 const Plat = require('../models/Plat');
 const Categorie = require('../models/Categorie');
@@ -14,7 +17,7 @@ const OrderPlats = require('../models/OrderPlats');
 const User = require("../models/User");
 const Associate = require("../models/Associate");
 
-// GET participate event 
+// GET: participate event 
 const event_participate = (req, res) => {
 
   let currentPage = parseInt(req.params.page);
@@ -39,7 +42,8 @@ const event_participate = (req, res) => {
       res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }
-// GET public events
+
+// GET: public events
 const event_public = (req, res) => {
   let currentPage = parseInt(req.params.page);
   const size = 4;
@@ -101,7 +105,7 @@ const event_public = (req, res) => {
   }
 }
 
-// GET events created by user
+// GET: events created + user who is admin
 const event_created_participate = async (req, res) => {
   try {
     const my_events = await Event.findAll({ where: { user_id: req.userData.id } });
@@ -117,7 +121,7 @@ const event_created_participate = async (req, res) => {
   }
 }
 
-// GET all orders by user of an event
+// GET: all orders by user of an event
 const event_orders = (req, res) => {
   const event_id = req.params.id;
 
@@ -136,7 +140,7 @@ const event_orders = (req, res) => {
     })
 }
 
-// GET event to manage orders
+// GET: event to manage orders (status, ordered plats, total budget)
 const event_manage = async (req, res) => {
   const event_id = req.params.id;
   const event = await Event.findByPk(event_id);
@@ -190,7 +194,7 @@ const event_manage = async (req, res) => {
 
 }
 
-// GET event with Plats + Categorie
+// GET: event with Plats + Categories
 const event_get = (req, res) => {
   const event_id = req.params.id;
 
@@ -213,7 +217,7 @@ const event_get = (req, res) => {
     });
 }
 
-// GET event with password typed by user
+// GET: join event by password typed from user
 const event_join = async (req, res) => {
   const password = req.params.password;
 
@@ -230,7 +234,7 @@ const event_join = async (req, res) => {
   }
 }
 
-// POST duplicate event
+// POST: duplicate event
 const event_duplicate = async (req, res) => {
   const event = await Event.findOne({ where: { id: req.body.id }, include: { model: Categorie, include: [Plat] } });
 
@@ -243,7 +247,7 @@ const event_duplicate = async (req, res) => {
     zipcode: event.zipcode,
     date: event.date,
     description: event.description,
-    photo_url: event.photo_url,
+    photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
     private: event.private,
     qrcode: ""
   });
@@ -288,7 +292,7 @@ const event_duplicate = async (req, res) => {
 }
 
 
-// POST new event
+// POST: add new event
 const event_post = async (req, res) => {
 
   const event = await Event.create({
@@ -316,7 +320,7 @@ const event_post = async (req, res) => {
   }
 }
 
-// PUT event
+// PUT: update event
 const event_put = async (req, res) => {
   const event = await Event.findByPk(req.body.id, { where: { user_id: req.userData.id } });
 
@@ -363,7 +367,7 @@ const event_put = async (req, res) => {
   }
 }
 
-// DELETE event
+// DELETE: delete event & image file
 const event_delete = async (req, res) => {
   const event = await Event.findByPk(req.body.id);
   const img = event.photo_url.split("/");
@@ -403,6 +407,7 @@ const event_delete = async (req, res) => {
     .catch(err => res.status(500).send({ "message": `Erreur: ${err}` }));
 }
 
+// GET: read file uploaded from user
 const event_image = (req, res) => {
   const path = process.env.IMAGE_PATH + req.params.filename;
 
@@ -416,6 +421,7 @@ const event_image = (req, res) => {
   }
 }
 
+// POST: send an email to invite user to join event
 const event_sendInvitation = async (req, res) => {
   const event_id = req.body.event_id;
   const event = await Event.findByPk(event_id, { include: { model: User } });
@@ -431,6 +437,7 @@ const event_sendInvitation = async (req, res) => {
   }
 }
 
+// GET: get all associates from event
 const event_listAssociate = async (req, res) => {
   try {
     const associates = await Associate.findAll({
@@ -450,6 +457,7 @@ const event_listAssociate = async (req, res) => {
 
 }
 
+// POST: add new associate
 const event_addAssociate = async (req, res) => {
   const event = await Event.findOne({
     where: {
@@ -469,6 +477,7 @@ const event_addAssociate = async (req, res) => {
       event.associate_events.forEach(associate => {
         ids.push(associate.user_id);
       });
+
       if (ids.includes(user.id)) {
         return res.status(400).send({ "message": `L'utilisateur correspondant à l'adresse ${user.email} est déjà administrateur` });
       }
@@ -487,8 +496,7 @@ const event_addAssociate = async (req, res) => {
           res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` });
         })
     } else {
-
-      // Generate password in order to create new user
+      // Create new user if no user find
       const rInt = (min, max) => {
         min = Math.ceil(min);
         max = Math.floor(max);
@@ -501,14 +509,13 @@ const event_addAssociate = async (req, res) => {
 
       User.create({
         email: req.body.email,
-        name: "Benjamin",
-        firstname: "Mathieu",
-        phone: "0102030405",
+        name: "",
+        firstname: "",
+        phone: "",
         password: hash,
-        zipcode: "88000"
+        zipcode: ""
       })
         .then(async (resNewUser) => {
-          console.log("resNewUser new_user =>", resNewUser.id);
           await Associate.create({ user_id: resNewUser.id, event_id: event.id });
           await email.sendEmailPreventAdminAdd(resNewUser.email, event.id, resNewUser, code);
           res.status(201).send({ "message": "Administrateur ajouté" });
