@@ -13,31 +13,31 @@ const categorie_listing = async (req, res) => {
 }
 
 // POST new category
-const categorie_post = (req, res) => {
+const categorie_post = async (req, res) => {
 
-  Categorie.findOrCreate({
-    where: { [Op.and]: [{ libelle: req.body.libelle }, { event_id: req.body.event_id }] },
-    defaults: { event_id: req.body.event_id, libelle: req.body.libelle }
-  })
-    .then(resp => {
-
-      if (result[1]) {
-        res.status(201).send({
-          "message": "Catégorie ajoutée !",
-          "categorie": resp
-        });
-      } else {
-        res.status(400).send({
-          "message": "Catégorie existante !",
-          "categorie": resp
-        });
+  try {
+    const [categorie, created] = await Categorie.findOrCreate({
+      where: { [Op.and]: [{ libelle: req.body.libelle }, { event_id: req.body.event_id }] },
+      defaults: {
+        event_id: req.body.event_id,
+        libelle: req.body.libelle
       }
-
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
+
+    if (created) {
+      res.status(201).send({
+        "message": "Catégorie ajoutée !",
+        "categorie": categorie
+      });
+    } else {
+      res.status(400).send({
+        "message": "Catégorie existante !",
+        "categorie": categorie
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+  }
 }
 
 // UPDATE category
