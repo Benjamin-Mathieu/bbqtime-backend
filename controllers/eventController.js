@@ -102,7 +102,7 @@ const event_public = (req, res) => {
 }
 
 // GET events created by user
-const event_created = async (req, res) => {
+const event_created_participate = async (req, res) => {
   try {
     const my_events = await Event.findAll({ where: { user_id: req.userData.id } });
     const associated_events = await Associate.findAll({ where: { user_id: req.userData.id }, include: [Event] });
@@ -194,7 +194,17 @@ const event_manage = async (req, res) => {
 const event_get = (req, res) => {
   const event_id = req.params.id;
 
-  Event.findByPk(event_id, { include: { model: Categorie, include: [Plat] } })
+  Event.findByPk(event_id, {
+    include: {
+      model: Categorie,
+      attributes: ["event_id", "id", "libelle"]
+      ,
+      include: {
+        model: Plat,
+        attributes: ["category_id", "description", "id", "libelle", "photo_url", "price", "stock"]
+      }
+    }
+  })
     .then(event => {
       res.status(200).send({ event });
     })
@@ -402,7 +412,7 @@ const event_image = (req, res) => {
       res.end(data);
     });
   } catch (err) {
-    res.status(500).json({});
+    res.status(500).send({ "message": "Erreur lecture image" });
   }
 }
 
@@ -413,12 +423,31 @@ const event_sendInvitation = async (req, res) => {
   if (event.user.id === req.userData.id) {
     email.sendEmailInvitation(req.body.email, event_id)
       .then(() => {
-        res.status(200).send({ "message": "Email envoyé !" });
+        res.status(200).send({ "message": `Email envoyé à ${req.body.email} !` });
       })
       .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }))
   } else {
     res.status(401).send({ "message": "Vous n'avez pas les droits pour inviter sur cet évènement" });
   }
+}
+
+const event_listAssociate = async (req, res) => {
+  try {
+    const associates = await Associate.findAll({
+      where: { event_id: req.params.id },
+      include: { model: User, attributes: ["email", "name", "firstname"] }
+    });
+
+    let list = [];
+    associates.forEach(associate => {
+      list.push(associate.user);
+    });
+
+    res.status(200).send({ "associates": list });
+  } catch (error) {
+    res.status(500).send({ "message": `Une erreur pendant s'est produite: ${err}` });
+  }
+
 }
 
 const event_addAssociate = async (req, res) => {
@@ -496,7 +525,7 @@ const event_addAssociate = async (req, res) => {
 module.exports = {
   event_public,
   event_participate,
-  event_created,
+  event_created_participate,
   event_manage,
   event_get,
   event_join,
@@ -507,5 +536,6 @@ module.exports = {
   event_sendInvitation,
   event_orders,
   event_addAssociate,
+  event_listAssociate,
   event_duplicate
 }

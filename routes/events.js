@@ -6,11 +6,12 @@ const uploadMiddleware = require('../middlewares/uploadMiddleware');
 
 router.get('/public/:page', eventController.event_public);
 router.get('/participate/:page', checkAuthMiddleware.checkAuth, eventController.event_participate);
-router.get('/myEvents', checkAuthMiddleware.checkAuth, eventController.event_created);
+router.get('/myEvents', checkAuthMiddleware.checkAuth, eventController.event_created_participate);
 router.get('/myEvents/:id', checkAuthMiddleware.checkAuth, eventController.event_manage);
 router.get("/myEvents/:id/orders", checkAuthMiddleware.checkAuth, eventController.event_orders);
 router.get('/:id', eventController.event_get);
 router.get('/join/:password', eventController.event_join);
+router.get("/:id/associate", checkAuthMiddleware.checkAuth, eventController.event_listAssociate);
 router.post('/', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), eventController.event_post);
 router.post("/addAssociate", checkAuthMiddleware.checkAuth, eventController.event_addAssociate);
 router.put('/update', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), eventController.event_put);
