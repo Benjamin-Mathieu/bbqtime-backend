@@ -3,7 +3,6 @@ const Event = require("../models/Event");
 const User = require("../models/User");
 const Order = require("../models/Order");
 
-
 const headers = {
     "Content-type": "application/json",
     "api-key": process.env.API_SENDINBLUE_KEY,
@@ -13,14 +12,22 @@ const email = {
     sendEmailInvitation: async (mailUser, event_id) => {
         try {
             const event = await Event.findByPk(event_id, { include: { model: User } });
+            const dateEvent = new Date(event.date);
+            const d = dateEvent.getDate();
+            const m = dateEvent.getMonth();
+            const y = dateEvent.getFullYear();
+
+            const date = `${d}/${m}/${y}`;
 
             await email.sendEmail(mailUser, "Invitation à un évènement !",
                 `<h2>Vous êtes invités à l'évènement ${event.name} de ${event.user.name} ${event.user.firstname} !</h2>
                 <div>
                     <ul>
                         <li>Adresse: ${event.address} ${event.zipcode} ${event.city} </li>
-                        <li>Date: ${event.date}</li>
+                        <li>Date: ${date}</li>
                     </ul>
+                    <p>"${process.env.LOGO_PATH}logo1.png"</p>
+                    <img src="${process.env.LOGO_PATH}logo1.png" alt="logo-bbqtime" />
                     <p>Pour rejoindre l'évènement, ouvrez l'application et rentrez le code suivant: <b>${event.password}</b></p>
                     <p>ou scanner ce qrcode: <img src="${event.qrcode}"/>
                 </div>
