@@ -34,7 +34,7 @@ const event_participate = (req, res) => {
     }, include: { model: Order, where: { user_id: req.userData.id } }
   })
     .then(events => {
-      let totalPages = Math.ceil(events.count / size);
+      let totalPages = Math.round(events.count / size);
 
       res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
     })
@@ -53,17 +53,14 @@ const event_public = (req, res) => {
     Event.findAndCountAll({
       limit: size,
       offset: offset,
-      where: {
-        [Op.and]: [
-          { private: 0 }
-        ]
-      }
+      where: { private: 0 }
     })
       .then(events => {
         if (events === null) {
           res.status(200).send({ "message": "Pas d'évènement à afficher " });
         }
-        let totalPages = Math.ceil(events.count / size);
+
+        let totalPages = Math.round(events.count / size);
 
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage <= 0) currentPage = 1;
@@ -92,12 +89,12 @@ const event_public = (req, res) => {
         if (events === null) {
           res.status(200).send({ "message": "Pas d'évènement à afficher " });
         }
-        let totalPages = Math.ceil(events.rows.length / size);
+        let totalPages = Math.round(events.count / size);
 
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage <= 0) currentPage = 1;
 
-        res.status(200).send({ "count": events.rows.length, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
+        res.status(200).send({ "count": events.count, "totalPages": totalPages, "currentPage": currentPage, "events": events.rows });
       })
       .catch((err) => {
         res.sendStatus(500).send({ "message": `Une erreur s'est produite ${err}` });
