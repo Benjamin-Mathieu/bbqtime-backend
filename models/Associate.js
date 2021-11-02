@@ -11,9 +11,15 @@ const Associate = db.define('associate_events', {
     },
     user_id: {
         type: Sequelize.INTEGER,
+        validate: {
+            isInt: true
+        }
     },
     event_id: {
         type: Sequelize.INTEGER,
+        validate: {
+            isInt: true
+        }
     }
 });
 

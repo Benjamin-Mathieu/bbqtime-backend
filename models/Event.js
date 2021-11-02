@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const db = require('../config/database');
 const User = require('./User');
 const Associate = require('./Associate');
@@ -11,34 +11,55 @@ const Event = db.define('event', {
         primaryKey: true
     },
     name: {
-        type: Sequelize.STRING,
+        type: DataTypes.STRING,
+        validate: {
+            isAlpha: true
+        }
     },
     password: {
-        type: Sequelize.STRING
+        type: DataTypes.STRING
     },
     address: {
-        type: Sequelize.TEXT
+        type: DataTypes.STRING
     },
     city: {
-        type: Sequelize.STRING
+        type: DataTypes.STRING,
+        validate: {
+            isAlpha: true
+        }
     },
     zipcode: {
-        type: Sequelize.INTEGER
+        type: DataTypes.STRING,
+        validate: {
+            isNumeric: true
+        }
     },
     date: {
-        type: Sequelize.DATE
+        type: DataTypes.DATE,
+        validate: {
+            isDate: true
+        }
     },
     description: {
-        type: Sequelize.CHAR
+        type: DataTypes.CHAR,
+        validate: {
+            isAlpha: true
+        }
     },
     photo_url: {
-        type: Sequelize.CHAR
+        type: DataTypes.INTEGER,
+        validate: {
+            isUrl: true
+        }
     },
     private: {
-        type: Sequelize.BOOLEAN
+        type: DataTypes.BOOLEAN,
+        validate: {
+            isBoolean: true
+        }
     },
     qrcode: {
-        type: Sequelize.TEXT
+        type: DataTypes.TEXT
     }
 },
     { paranoid: true }

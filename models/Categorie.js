@@ -12,9 +12,9 @@ const Categorie = db.define('categorie', {
     },
     libelle: {
         type: Sequelize.STRING,
-        // validate: {
-        //     isAlpha: true
-        // }
+        validate: {
+            isAlphanumeric: true
+        }
     }
 });
 

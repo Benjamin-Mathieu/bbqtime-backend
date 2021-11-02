@@ -13,32 +13,33 @@ const Order = db.define('order', {
     },
     event_id: {
         type: Sequelize.INTEGER,
-        references: {         // Order belongsTo Event 1:1
-            model: 'event',
-            key: 'id'
+        validate: {
+            isInt: true
         }
     },
     user_id: {
         type: Sequelize.INTEGER,
-        references: {         // Order belongsTo User 1:1
-            model: 'user',
-            key: 'id'
+        validate: {
+            isInt: true
         }
     },
     cost: {
         type: Sequelize.STRING,
-        // validate: {
-        //     isDecimal: true
-        // }
+        validate: {
+            isDecimal: true
+        }
     },
     heure: {
         type: Sequelize.DATE,
-        // validate: {
-        //     isAfter: true
-        // }
+        validate: {
+            isDate: true
+        }
     },
     status: {
-        type: Sequelize.TINYINT
+        type: Sequelize.TINYINT,
+        validate: {
+            isInt: true
+        }
     }
 });
 

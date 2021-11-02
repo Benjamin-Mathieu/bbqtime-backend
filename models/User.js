@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
-const Event = require('./Event');
 
 const User = db.define('user', {
     id: {
@@ -34,11 +33,5 @@ const User = db.define('user', {
         type: Sequelize.CHAR
     }
 });
-
-// User.associate = function(models) {
-//     User.hasMany(models.Event, {as: 'events'})
-// };
-
-// User.hasMany(Event);
 
 module.exports = User;

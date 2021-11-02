@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const db = require('../config/database');
-const Categorie = require('./Categorie');
 
 const Plat = db.define('plat', {
     id: {
@@ -11,27 +10,30 @@ const Plat = db.define('plat', {
     },
     libelle: {
         type: Sequelize.STRING,
-        // validate: {
-        //     isAlpha: true
-        // }
+        validate: {
+            isAlphanumeric: true
+        }
     },
     photo_url: {
         type: Sequelize.STRING
     },
     stock: {
         type: Sequelize.BIGINT,
-        // validate: {
-        //     isNumeric: true
-        // }
+        validate: {
+            isInt: true
+        }
     },
     price: {
         type: Sequelize.DECIMAL,
-        // validate: {
-        //     isDecimal: true
-        // }
+        validate: {
+            isDecimal: true
+        }
     },
     description: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        validate: {
+            isAlphanumeric: true
+        }
     }
 });
 

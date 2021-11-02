@@ -11,16 +11,14 @@ const OrderPlats = db.define('orders_plats', {
     },
     plat_id: {
         type: Sequelize.INTEGER,
-        references: {         // OrderPlats belongsTo Plat 1:1
-            model: 'plat',
-            key: 'id'
+        validate: {
+            isInt: true
         }
     },
     order_id: {
         type: Sequelize.INTEGER,
-        references: {         // OrderPlats belongsTo Order 1:1
-            model: 'order',
-            key: 'id'
+        validate: {
+            isInt: true
         }
     },
     quantity: {

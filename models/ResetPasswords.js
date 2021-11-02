@@ -10,9 +10,15 @@ const ResetPasswords = db.define('reset_passwords', {
     },
     user_id: {
         type: Sequelize.INTEGER,
+        validate: {
+            isInt: true
+        }
     },
     code: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        validate: {
+            isInt: true
+        }
     }
 });
 
