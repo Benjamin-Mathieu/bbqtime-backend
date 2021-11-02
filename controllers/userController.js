@@ -47,20 +47,27 @@ const user_post = (req, res) => {
         });
 }
 
-const user_put = (req, res) => {
-    User.update({
-        email: req.body.data.email,
-        name: req.body.data.name,
-        firstname: req.body.data.firstname,
-        phone: req.body.data.phone
-    },
-        { where: { id: req.userData.id } })
-        .then(user => {
-            res.status(200).send({ "message": "Compte mis à jour", "user": user });
-        })
-        .catch(err => {
-            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-        });
+const user_put = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.userData.id);
+
+        if (!bcrypt.compareSync(req.body.data.password, user.password)) {
+            res.status(401).send({ "message": "Mauvais mot de passe !" });
+        } else {
+            const updated = await User.update({
+                email: req.body.data.email,
+                name: req.body.data.name,
+                firstname: req.body.data.firstname,
+                phone: req.body.data.phone
+            }, { where: { id: req.userData.id } });
+
+            res.status(200).send({ "message": "Compte mis à jour", "user": updated });
+        }
+
+    } catch (err) {
+        res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+    }
+
 }
 
 // DELETE one user
@@ -174,6 +181,7 @@ const user_is_logged = async (req, res) => {
     if (user) {
         res.status(200).send(
             {
+                "message": "Connexion réussie",
                 "userIsLogged": true,
                 "informations": {
                     "id": user.id,
@@ -184,7 +192,7 @@ const user_is_logged = async (req, res) => {
                 }
             });
     } else {
-        res.status(200).send({ "userIsLogged": false });
+        res.status(200).send({ "message": "Vous n'êtes plus connecté", "userIsLogged": false });
     }
 }
 
