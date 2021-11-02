@@ -22,6 +22,7 @@ router.post("/duplicate", checkAuthMiddleware.checkAuth, uploadMiddleware.upload
 router.put('/update', checkAuthMiddleware.checkAuth, uploadMiddleware.upload('image'), eventController.event_put);
 
 router.delete('/delete', checkAuthMiddleware.checkAuth, eventController.event_delete);
+router.delete('/associate', checkAuthMiddleware.checkAuth, eventController.event_delete_associate);
 
 
 module.exports = router;

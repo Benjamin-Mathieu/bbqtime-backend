@@ -292,7 +292,7 @@ const event_duplicate = async (req, res) => {
 }
 
 
-// POST: add new event
+// POST: new event
 const event_post = async (req, res) => {
 
   const event = await Event.create({
@@ -320,7 +320,7 @@ const event_post = async (req, res) => {
   }
 }
 
-// PUT: update event
+// PUT: event
 const event_put = async (req, res) => {
   const event = await Event.findByPk(req.body.id, { where: { user_id: req.userData.id } });
 
@@ -367,7 +367,7 @@ const event_put = async (req, res) => {
   }
 }
 
-// DELETE: delete event & image file
+// DELETE: event & image file
 const event_delete = async (req, res) => {
   const event = await Event.findByPk(req.body.id);
   const img = event.photo_url.split("/");
@@ -407,7 +407,7 @@ const event_delete = async (req, res) => {
     .catch(err => res.status(500).send({ "message": `Erreur: ${err}` }));
 }
 
-// GET: read file uploaded from user
+// GET: file uploaded from user
 const event_image = (req, res) => {
   const path = process.env.IMAGE_PATH + req.params.filename;
 
@@ -421,43 +421,49 @@ const event_image = (req, res) => {
   }
 }
 
-// POST: send an email to invite user to join event
+// POST: an email to invite user to join event
 const event_sendInvitation = async (req, res) => {
   const event_id = req.body.event_id;
   const event = await Event.findByPk(event_id, { include: { model: User } });
 
-  if (event.user.id === req.userData.id) {
-    email.sendEmailInvitation(req.body.email, event_id)
-      .then(() => {
-        res.status(200).send({ "message": `Email envoyé à ${req.body.email} !` });
-      })
-      .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }))
-  } else {
-    res.status(401).send({ "message": "Vous n'avez pas les droits pour inviter sur cet évènement" });
-  }
+  email.sendEmailInvitation(req.body.email, event_id)
+    .then(() => {
+      res.status(200).send({ "message": `Email envoyé à ${req.body.email} !` });
+    })
+    .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }))
+
+  // if (event.user.id === req.userData.id) {
+  // } else {
+  //   res.status(401).send({ "message": "Vous n'avez pas les droits pour inviter sur cet évènement" });
+  // }
 }
 
-// GET: get all associates from event
+// GET: all associates from event
 const event_listAssociate = async (req, res) => {
   try {
     const associates = await Associate.findAll({
       where: { event_id: req.params.id },
+      attributes: ["id"],
       include: { model: User, attributes: ["email", "name", "firstname"] }
     });
 
-    let list = [];
-    associates.forEach(associate => {
-      list.push(associate.user);
-    });
-
-    res.status(200).send({ "associates": list });
+    res.status(200).send({ associates });
   } catch (error) {
-    res.status(500).send({ "message": `Une erreur pendant s'est produite: ${err}` });
+    res.status(500).send({ "message": `Une erreur s'est produite: ${err}` });
   }
-
 }
 
-// POST: add new associate
+// DELETE: associate from event
+const event_delete_associate = async (req, res) => {
+  try {
+    await Associate.destroy({ where: { id: req.body.id } });
+    res.status(200).send({ "message": "Associé supprimé" });
+  } catch (err) {
+    res.status(500).send({ "message": `Une erreur s'est produite: ${err}` });
+  }
+}
+
+// POST: new associate
 const event_addAssociate = async (req, res) => {
   const event = await Event.findOne({
     where: {
@@ -544,5 +550,6 @@ module.exports = {
   event_orders,
   event_addAssociate,
   event_listAssociate,
-  event_duplicate
+  event_duplicate,
+  event_delete_associate
 }
