@@ -421,18 +421,13 @@ const event_image = (req, res) => {
 // POST: an email to invite user to join event
 const event_sendInvitation = async (req, res) => {
   const event_id = req.body.event_id;
-  const event = await Event.findByPk(event_id, { include: { model: User } });
 
-  email.sendEmailInvitation(req.body.email, event_id)
-    .then(() => {
-      res.status(200).send({ "message": `Email envoyé à ${req.body.email} !` });
-    })
-    .catch(err => res.status(400).send({ "message": `Erreur pendant l'envoi: ${err}` }))
-
-  // if (event.user.id === req.userData.id) {
-  // } else {
-  //   res.status(401).send({ "message": "Vous n'avez pas les droits pour inviter sur cet évènement" });
-  // }
+  try {
+    await email.sendEmailInvitation(req.body.email, event_id);
+    res.status(200).send({ "message": `Email envoyé à ${req.body.email} !` });
+  } catch (error) {
+    res.status(400).send({ "message": `Erreur pendant l'envoi: ${error}` })
+  }
 }
 
 // GET: all associates from event

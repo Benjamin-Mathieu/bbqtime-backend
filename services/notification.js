@@ -8,23 +8,19 @@ const headers = {
     "Authorization": `Basic ${process.env.API_ONESIGNAL_KEY}`
 };
 
-const message = {
-    app_id: process.env.APPID_ONESIGNAL,
-    contents: { "en": "" }
-};
 
 const serviceNotification = {
     sendNotificationNewOrder: async (event_id) => {
         try {
-            const event = await Event.findByPk(event_id, { include: { model: User } });
-            const userId = event.user.id.toString();
-            console.log("userId", userId);
+            const event = await Event.findByPk(event_id);
 
-            message.contents.en = `Une nouvelle commande a été passée sur votre évènement ${event.name}`;
-            message.include_external_user_ids = [userId.toString()];
-            console.log("message =>", message);
+            const data = {
+                app_id: process.env.APPID_ONESIGNAL,
+                contents: { "en": `Une nouvelle commande a été passée sur votre évènement ${event.name}` },
+                include_external_user_ids: [event.user_id.toString()]
+            };
 
-            await serviceNotification.sendNotification(message);
+            await serviceNotification.sendNotification(data);
         } catch (error) {
             throw error;
         }
@@ -34,27 +30,14 @@ const serviceNotification = {
         try {
             const order = await Order.findByPk(order_id, { include: { model: User } });
             const userId = order.user.id.toString();
-            let status = "";
 
-            switch (order.status) {
-                case 0:
-                    status = "en préparation";
-                    break;
-                case 1:
-                    status = "préparée, vous pouvez venir la chercher";
-                    break;
-                case 2:
-                    status = "livrée";
-                    break;
-                default:
-                    console.log(`Sorry, we are out of ${order.status}.`);
-            }
-            console.log("status commande =>", status);
-            console.log("order.status", order.status);
-            message.contents.en = `Votre commande est ${status} !`;
-            message.include_external_user_ids = [userId.toString()];
+            const data = {
+                app_id: process.env.APPID_ONESIGNAL,
+                contents: { "en": `Votre commande est préparée, vous pouvez venir la chercher !` },
+                include_external_user_ids: [userId.toString()]
+            };
 
-            await serviceNotification.sendNotification(message);
+            await serviceNotification.sendNotification(data);
         } catch (error) {
             throw error;
         }

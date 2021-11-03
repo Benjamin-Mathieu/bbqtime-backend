@@ -52,8 +52,7 @@ const order_put = (req, res) => {
         .then(async order => {
 
             const event = await Event.findByPk(order.event.id, { include: [Associate] });
-            let ids = [];
-            ids.push(event.user_id);
+            let ids = [event.user_id]; // array which contains user_id of creator + all associates
 
             event.associate_events.forEach(async (associate) => {
                 ids.push(associate.user_id);
@@ -61,7 +60,9 @@ const order_put = (req, res) => {
 
             if (ids.includes(req.userData.id)) {
                 await order.update({ status: status });
-                notification.sendNotificationOrderStatus(order_id);
+                if (status === 1) {
+                    notification.sendNotificationOrderStatus(order_id);
+                }
 
                 res.status(200).send({ "message": 'Status de la commande mis à jour', "order": order, "event": event });
             } else {
@@ -105,8 +106,8 @@ const order_post = (req, res) => {
                         }
                     })
             });
-            res.status(201).send({ "message": "Commande effectuée !", "order": newOrder });
             notification.sendNotificationNewOrder(req.body.event_id);
+            res.status(201).send({ "message": "Commande effectuée !", "order": newOrder });
         })
         .catch(err => {
             console.log(err);
