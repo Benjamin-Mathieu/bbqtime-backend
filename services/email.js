@@ -16,7 +16,9 @@ const email = {
             const d = dateEvent.getDate();
             const m = dateEvent.getMonth();
             const y = dateEvent.getFullYear();
-            const date = `${d}/${m}/${y}`;
+            const h = dateEvent.getHours();
+            const min = dateEvent.getMinutes();
+            const date = `${d}/${m}/${y} à ${h}:${min}`;
 
             await axios.post(
                 "https://api.sendinblue.com/v3/smtp/email",
