@@ -2,6 +2,7 @@ const axios = require("axios");
 const Event = require("../models/Event");
 const User = require("../models/User");
 const Order = require("../models/Order");
+const Associate = require("../models/Associate");
 
 const headers = {
     "Content-Type": "application/json; charset=utf-8",
@@ -12,12 +13,17 @@ const headers = {
 const serviceNotification = {
     sendNotificationNewOrder: async (event_id) => {
         try {
-            const event = await Event.findByPk(event_id);
+            const event = await Event.findOne({ where: { id: event_id }, include: [Associate] });
+
+            let ids = [event.user_id.toString()]; // array which contains ids of creator + all associates of event
+            event.associate_events.forEach(associate => {
+                ids.push(associate.user_id.toString());
+            });
 
             const data = {
                 app_id: process.env.APPID_ONESIGNAL,
                 contents: { "en": `Une nouvelle commande a été passée sur votre évènement ${event.name}` },
-                include_external_user_ids: [event.user_id.toString()]
+                include_external_user_ids: ids
             };
 
             await serviceNotification.sendNotification(data);
@@ -34,7 +40,7 @@ const serviceNotification = {
             const data = {
                 app_id: process.env.APPID_ONESIGNAL,
                 contents: { "en": `Votre commande est préparée, vous pouvez venir la chercher !` },
-                include_external_user_ids: [userId.toString()]
+                include_external_user_ids: [userId]
             };
 
             await serviceNotification.sendNotification(data);
