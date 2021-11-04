@@ -87,31 +87,49 @@ const email = {
         }
     },
 
-    sendEmailResetPassword: async (mailUser) => {
+    sendEmailResetPassword: async (mailUser, codeInDb) => {
         try {
-            const rInt = (min, max) => {
-                min = Math.ceil(min);
-                max = Math.floor(max);
-                return Math.floor(Math.random() * (max - min + 1)) + min;
-            };
 
-            const code = rInt(100000, 999999);
-
-            await axios.post(
-                "https://api.sendinblue.com/v3/smtp/email",
-                {
-                    'templateId': 4,
-                    'to': [{ email: mailUser }],
-                    'params': {
-                        "code": code
+            if (codeInDb) {
+                await axios.post(
+                    "https://api.sendinblue.com/v3/smtp/email",
+                    {
+                        'templateId': 4,
+                        'to': [{ email: mailUser }],
+                        'params': {
+                            "code": codeInDb
+                        },
                     },
-                },
-                {
-                    headers,
-                }
-            );
+                    {
+                        headers,
+                    }
+                );
+            } else {
+                const rInt = (min, max) => {
+                    min = Math.ceil(min);
+                    max = Math.floor(max);
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                };
 
-            return code;
+                const code = rInt(100000, 999999);
+
+                await axios.post(
+                    "https://api.sendinblue.com/v3/smtp/email",
+                    {
+                        'templateId': 4,
+                        'to': [{ email: mailUser }],
+                        'params': {
+                            "code": code
+                        },
+                    },
+                    {
+                        headers,
+                    }
+                );
+
+                return code;
+            }
+
         } catch (error) {
             throw error;
         }

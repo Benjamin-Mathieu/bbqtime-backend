@@ -3,7 +3,6 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const checkAuthMiddleware = require('../middlewares/checkAuthorizationMiddleware');
 
-router.get('/', userController.user_listing);
 router.get("/isLogged", checkAuthMiddleware.checkAuth, userController.user_is_logged);
 router.post('/', userController.user_post);
 router.put('/update', checkAuthMiddleware.checkAuth, userController.user_put);
