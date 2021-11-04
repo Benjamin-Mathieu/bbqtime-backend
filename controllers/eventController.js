@@ -83,7 +83,7 @@ const event_public = (req, res) => {
         [Op.and]: [
           { private: 0 },
         ]
-      }, include: { model: Order, attributes: ["user_id"] }
+      }
     })
       .then(events => {
         if (events === null) {
@@ -103,9 +103,13 @@ const event_public = (req, res) => {
 }
 
 // GET: events created + user who is admin
-const event_created_participate = async (req, res) => {
+const event_my_events_and_associate_events = async (req, res) => {
+
   try {
-    const my_events = await Event.findAll({ where: { user_id: req.userData.id } });
+    const my_events = await Event.findAll({
+      where: { user_id: req.userData.id }
+    });
+
     const associated_events = await Associate.findAll({ where: { user_id: req.userData.id }, include: [Event] });
 
     associated_events.forEach(e => {
@@ -113,6 +117,7 @@ const event_created_participate = async (req, res) => {
     });
 
     res.status(200).send({ "events": my_events });
+
   } catch (error) {
     res.status(500).send({ "message": `Une erreur s'est produite ${error}` });
   }
@@ -530,7 +535,7 @@ const event_addAssociate = async (req, res) => {
 module.exports = {
   event_public,
   event_participate,
-  event_created_participate,
+  event_my_events_and_associate_events,
   event_manage,
   event_get,
   event_join,
