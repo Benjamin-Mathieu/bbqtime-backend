@@ -19,15 +19,15 @@ const User = db.define('user', {
     },
     name: {
         type: Sequelize.STRING,
-        validate: {
-            isAlpha: true
-        }
+        // validate: {
+        //     isAlpha: true
+        // }
     },
     firstname: {
         type: Sequelize.STRING,
-        validate: {
-            isAlpha: true
-        }
+        // validate: {
+        //     isAlpha: true
+        // }
     },
     phone: {
         type: Sequelize.CHAR

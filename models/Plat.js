@@ -10,9 +10,9 @@ const Plat = db.define('plat', {
     },
     libelle: {
         type: Sequelize.STRING,
-        validate: {
-            isAlphanumeric: true
-        }
+        // validate: {
+        //     isAlphanumeric: true
+        // }
     },
     photo_url: {
         type: Sequelize.STRING
@@ -31,9 +31,6 @@ const Plat = db.define('plat', {
     },
     description: {
         type: Sequelize.STRING,
-        validate: {
-            isAlphanumeric: true
-        }
     }
 });
 
