@@ -154,13 +154,11 @@ const event_manage = async (req, res) => {
 
         orders.forEach(order => {
           order.orders_plats.forEach(orderedPlats => {
-
             platsOrderedInEvent.push({
               "id": orderedPlats.plat.id,
               "libelle": orderedPlats.plat.libelle,
-              "quantity": orderedPlats.plat.quantity,
-              "photo_url": orderedPlats.plat.photo_url,
               "quantity": orderedPlats.quantity,
+              "photo_url": orderedPlats.plat.photo_url,
               "price": orderedPlats.plat.price,
               "total": orderedPlats.quantity * orderedPlats.plat.price
             });
@@ -169,22 +167,27 @@ const event_manage = async (req, res) => {
         });
 
         const ids = platsOrderedInEvent.map(el => el.id); // return new array with all plats id's
+
         // Find if plat is duplicated; if yes, total amount is calculated
         ids.filter((id, index) => {
           const firstExistingId = ids.indexOf(id);
+
           if (firstExistingId !== index) {
+
             platsOrderedInEvent[firstExistingId].quantity += platsOrderedInEvent[index].quantity;
             platsOrderedInEvent[firstExistingId].total += platsOrderedInEvent[index].total;
-            platsOrderedInEvent.splice(index, 1);
+            platsOrderedInEvent[index] = null;
           }
         });
 
+        const filteredPlats = platsOrderedInEvent.filter(n => n);
+
         // Calcul total budget
-        const totalAmounts = platsOrderedInEvent.map(el => el.total); // return new array with total amount for each plats
+        const totalAmounts = filteredPlats.map(el => el.total); // return new array with total amount for each plats
         const reducer = (previousValue, currentValue) => previousValue + currentValue;
         const totalBudget = totalAmounts.reduce(reducer); // sum of all amounts
 
-        res.status(200).send({ "plats": platsOrderedInEvent, "totalBudget": totalBudget, "event": event });
+        res.status(200).send({ "plats": filteredPlats, "totalBudget": totalBudget, "event": event });
       } else {
         res.status(200).send({ "message": "Aucune commande pour le moment", "event": event });
       }

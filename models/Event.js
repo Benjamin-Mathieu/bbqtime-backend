@@ -12,9 +12,9 @@ const Event = db.define('event', {
     },
     name: {
         type: DataTypes.STRING,
-        validate: {
-            isAlpha: true
-        }
+        // validate: {
+        //     isAlpha: true
+        // }
     },
     password: {
         type: DataTypes.STRING
@@ -42,9 +42,9 @@ const Event = db.define('event', {
     },
     description: {
         type: DataTypes.CHAR,
-        validate: {
-            isAlpha: true
-        }
+        // validate: {
+        //     isAlpha: true
+        // }
     },
     photo_url: {
         type: DataTypes.INTEGER,
