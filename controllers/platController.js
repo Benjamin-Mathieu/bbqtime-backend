@@ -1,22 +1,5 @@
 const Plat = require('../models/Plat');
-const Categorie = require('../models/Categorie');
 const fs = require('fs');
-
-// GET plat with categorie
-const plat_listing = (req, res) => {
-    Plat.findAll({ include: [Categorie] })
-        .then(plats => {
-            let plats_array = [];
-            plats.forEach(plat => {
-                plats_array.push(plat);
-            });
-            res.status(200).send({ "plats": plats_array });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-        });
-};
 
 // GET plat of a category
 const plat_get = (req, res) => {
@@ -99,7 +82,7 @@ const plat_delete = async (req, res) => {
 };
 
 module.exports = {
-    plat_listing,
+    // plat_listing,
     plat_get,
     plat_post,
     plat_put,
