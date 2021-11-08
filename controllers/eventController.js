@@ -17,6 +17,27 @@ const OrderPlats = require('../models/OrderPlats');
 const User = require("../models/User");
 const Associate = require("../models/Associate");
 
+// GET: archive event
+const event_archive = async (req, res) => {
+  const actual_date = new Date;
+
+  try {
+    const events = await Event.findAll({
+      where: {
+        user_id: req.userData.id,
+        date: {
+          [Op.lte]: actual_date
+        }
+      }
+    });
+    res.status(200).send({ events });
+  }
+  catch (err) {
+    res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+  }
+
+}
+
 // GET: participate event 
 const event_participate = (req, res) => {
 
@@ -104,10 +125,16 @@ const event_public = (req, res) => {
 
 // GET: events created + user who is admin
 const event_my_events_and_associate_events = async (req, res) => {
+  const actual_date = new Date;
 
   try {
     const my_events = await Event.findAll({
-      where: { user_id: req.userData.id }
+      where: {
+        user_id: req.userData.id,
+        date: {
+          [Op.gte]: actual_date
+        }
+      }
     });
 
     const associated_events = await Associate.findAll({ where: { user_id: req.userData.id }, include: [Event] });
@@ -536,6 +563,7 @@ const event_addAssociate = async (req, res) => {
 }
 
 module.exports = {
+  event_archive,
   event_public,
   event_participate,
   event_my_events_and_associate_events,
