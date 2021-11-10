@@ -33,14 +33,14 @@ const user_put = async (req, res) => {
     try {
         const user = await User.findByPk(req.userData.id);
 
-        if (!bcrypt.compareSync(req.body.data.password, user.password)) {
+        if (!bcrypt.compareSync(req.body.password, user.password)) {
             res.status(401).send({ "message": "Mauvais mot de passe !" });
         } else {
             await User.update({
-                email: req.body.data.email,
-                name: req.body.data.name,
-                firstname: req.body.data.firstname,
-                phone: req.body.data.phone
+                email: req.body.email,
+                name: req.body.name,
+                firstname: req.body.firstname,
+                phone: req.body.phone
             }, { where: { id: req.userData.id } });
             const informations = await User.findByPk(req.userData.id, { attributes: ["id", "name", "firstname", "phone", "email"] });
             res.status(200).send({ "message": "Compte mis à jour", "informations": informations });
@@ -134,7 +134,7 @@ const user_send_code = async (req, res) => {
 }
 
 const user_check_code = async (req, res) => {
-    const code = req.body.code;
+    const code = parseInt(req.body.code);
     const user = await User.findOne({ where: { email: req.body.email } });
     const reset_password = await ResetPasswords.findOne({ where: { user_id: user.id } });
 
@@ -169,19 +169,26 @@ const user_reset_password = async (req, res) => {
 }
 
 const user_is_logged = async (req, res) => {
-    const user = await User.findOne({ where: { id: req.userData.id } });
-    res.status(200).send(
-        {
-            "message": "Connexion réussie",
-            "userIsLogged": true,
-            "informations": {
-                "id": user.id,
-                "email": user.email,
-                "firstname": user.firstname,
-                "name": user.name,
-                "phone": user.phone
-            }
-        });
+
+    try {
+        const user = await User.findOne({ where: { id: req.userData.id } });
+        res.status(200).send(
+            {
+                "message": "Connexion réussie",
+                "userIsLogged": true,
+                "informations": {
+                    "id": user.id,
+                    "email": user.email,
+                    "firstname": user.firstname,
+                    "name": user.name,
+                    "phone": user.phone
+                }
+            });
+    } catch (error) {
+        res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+
+    }
+
 }
 
 
