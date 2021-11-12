@@ -70,7 +70,7 @@ const event_public = (req, res) => {
   const size = 4;
   let offset = (currentPage - 1) * size;
 
-  if (req.headers.authorization.split(" ")[1] == "null") {
+  if (req.userData == undefined) {
     Event.findAndCountAll({
       limit: size,
       offset: offset,
@@ -133,7 +133,18 @@ const event_my_events_and_associate_events = async (req, res) => {
       }
     });
 
-    const associated_events = await Associate.findAll({ where: { user_id: req.userData.id }, include: [Event] });
+    const associated_events = await Associate.findAll({
+      where: {
+        user_id: req.userData.id,
+      },
+      include: {
+        model: Event, where: {
+          date: {
+            [Op.gte]: actual_date
+          }
+        }
+      }
+    });
 
     associated_events.forEach(e => {
       my_events.push(e.event);
@@ -275,7 +286,7 @@ const event_duplicate = async (req, res) => {
     zipcode: event.zipcode,
     date: event.date,
     description: event.description,
-    photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
+    photo_url: event.photo_url,
     private: event.private,
     qrcode: ""
   });
@@ -397,7 +408,7 @@ const event_put = async (req, res) => {
 
 // DELETE: event & image file
 const event_delete = async (req, res) => {
-  const event = await Event.findByPk(req.body.id);
+  const event = await Event.findByPk(req.params.id);
   const img = event.photo_url.split("/");
   try {
     fs.unlinkSync(`${process.env.IMAGE_PATH}${img[5]}`); // file removed
@@ -407,7 +418,7 @@ const event_delete = async (req, res) => {
 
   Event.findOne({
     where: {
-      id: req.body.id
+      id: req.params.id
     },
     include: { model: Order }
   })
@@ -479,7 +490,7 @@ const event_listAssociate = async (req, res) => {
 // DELETE: associate from event
 const event_delete_associate = async (req, res) => {
   try {
-    await Associate.destroy({ where: { id: req.body.id } });
+    await Associate.destroy({ where: { id: req.params.id } });
     res.status(200).send({ "message": "Associé supprimé" });
   } catch (err) {
     res.status(500).send({ "message": `Une erreur s'est produite: ${err}` });

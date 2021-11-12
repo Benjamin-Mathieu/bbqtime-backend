@@ -76,6 +76,7 @@ const order_put = (req, res) => {
 
 // POST new order
 const order_post = (req, res) => {
+    req.body.plats = JSON.parse(req.body.plats);
     let totalOrder = 0;
 
     req.body.plats.forEach(plat => {

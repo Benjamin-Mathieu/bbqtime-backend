@@ -58,7 +58,7 @@ const plat_put = async (req, res) => {
 
 // DELETE plat
 const plat_delete = async (req, res) => {
-    const plat = await Plat.findByPk(req.body.id);
+    const plat = await Plat.findByPk(req.params.id);
     const img = plat.photo_url.split("/");
     console.log("img name =>", img[5]);
     try {
@@ -69,7 +69,7 @@ const plat_delete = async (req, res) => {
 
     Plat.destroy({
         where: {
-            id: req.body.id
+            id: req.params.id
         }
     })
         .then(plat => {
@@ -82,7 +82,6 @@ const plat_delete = async (req, res) => {
 };
 
 module.exports = {
-    // plat_listing,
     plat_get,
     plat_post,
     plat_put,

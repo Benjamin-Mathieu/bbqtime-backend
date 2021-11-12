@@ -56,7 +56,7 @@ const categorie_put = (req, res) => {
 const categorie_delete = (req, res) => {
   Categorie.destroy({
     where: {
-      id: req.body.id
+      id: req.params.id
     }
   })
     .then(plat => {
