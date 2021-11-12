@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
+app.disable('etag');
 
 // Database
 const db = require("./config/database");
