@@ -24,7 +24,7 @@ const Order = db.define('order', {
         }
     },
     cost: {
-        type: Sequelize.STRING,
+        type: Sequelize.DECIMAL,
         validate: {
             isDecimal: true
         }
