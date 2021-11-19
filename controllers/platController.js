@@ -39,21 +39,37 @@ const plat_post = (req, res) => {
 
 // UPDATE plat
 const plat_put = async (req, res) => {
+    if (req.file) {
+        Plat.update({
+            category_id: req.body.category_id,
+            libelle: req.body.libelle,
+            photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
+            stock: req.body.stock,
+            price: req.body.price,
+            description: req.body.description
+        }, { where: { id: req.body.id } })
+            .then(() => {
+                res.status(200).send({ "message": "Plat mis à jour !" });
+            })
+            .catch(err => {
+                res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+            })
+    } else {
+        Plat.update({
+            category_id: req.body.category_id,
+            libelle: req.body.libelle,
+            stock: req.body.stock,
+            price: req.body.price,
+            description: req.body.description
+        }, { where: { id: req.body.id } })
+            .then(() => {
+                res.status(200).send({ "message": "Plat mis à jour !" });
+            })
+            .catch(err => {
+                res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
+            })
+    }
 
-    Plat.update({
-        category_id: req.body.category_id,
-        libelle: req.body.libelle,
-        photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
-        stock: req.body.stock,
-        price: req.body.price,
-        description: req.body.description
-    }, { where: { id: req.body.id } })
-        .then(() => {
-            res.status(200).send({ "message": "Plat mis à jour !" });
-        })
-        .catch(err => {
-            res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
-        })
 }
 
 // DELETE plat
