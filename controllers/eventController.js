@@ -48,11 +48,7 @@ const event_participate = (req, res) => {
   Event.findAndCountAll({
     limit: size,
     offset: offset,
-    where: {
-      [Op.not]: [
-        { user_id: req.userData.id },
-      ]
-    }, include: { model: Order, where: { user_id: req.userData.id } }
+    include: { model: Order, where: { user_id: req.userData.id } }
   })
     .then(events => {
       let totalPages = Math.ceil(events.rows.length / size);
