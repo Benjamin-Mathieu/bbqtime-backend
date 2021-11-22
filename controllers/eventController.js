@@ -255,14 +255,19 @@ const event_get = (req, res) => {
 // GET: join event by password typed from user
 const event_join = async (req, res) => {
   const password = req.params.password;
+  const actual_date = new Date;
 
   try {
     const event = await Event.findOne({ where: { password: password }, include: { model: Categorie, include: [Plat] } });
 
     if (event) {
-      res.status(200).send({ "message": "Evènement rejoint", "event": event });
+      if (event.date < actual_date) {
+        res.status(400).send({ "message": "L'évènement n'est plus joignable" });
+      } else {
+        res.status(200).send({ "message": "Evènement rejoint", "event": event });
+      }
     } else {
-      res.status(400).send({ "message": "Aucun évènement n'est lié à ce code, réessayez !" });
+      res.status(400).send({ "message": "Aucun évènement correspondant" });
     }
   } catch (error) {
     res.status(500).send({ "message": `Une erreur s'est produite ${error}` });
