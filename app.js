@@ -34,4 +34,10 @@ app.use('/users', usersRouter);
 app.use('/events', eventsRouter);
 app.use('/plats', platsRouter);
 
+// Catch invalid url
+app.use((req, res) => {
+  res.status(404).send({ "message": "Url non valide" })
+})
+
+
 module.exports = app;
