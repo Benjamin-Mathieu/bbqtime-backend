@@ -277,6 +277,8 @@ const event_join = async (req, res) => {
 // POST: duplicate event
 const event_duplicate = async (req, res) => {
   const event = await Event.findOne({ where: { id: req.body.id }, include: { model: Categorie, include: [Plat] } });
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
 
   const new_event = await Event.create({
     user_id: req.userData.id,
@@ -285,7 +287,7 @@ const event_duplicate = async (req, res) => {
     address: event.address,
     city: event.city,
     zipcode: event.zipcode,
-    date: event.date,
+    date: date,
     description: event.description,
     photo_url: event.photo_url,
     private: event.private,
