@@ -14,10 +14,12 @@ const email = {
 
             const dateEvent = new Date(event.date);
             const d = dateEvent.getDate();
-            const m = dateEvent.getMonth();
+            const m = dateEvent.getMonth() + 1;
             const y = dateEvent.getFullYear();
-            const h = dateEvent.getHours();
-            const min = dateEvent.getMinutes();
+            const h = dateEvent.getUTCHours();
+            let min = dateEvent.getMinutes();
+            if (min < 10) min = "0" + min;
+
             const date = `${d}/${m}/${y} à ${h}:${min}`;
 
             await axios.post(
