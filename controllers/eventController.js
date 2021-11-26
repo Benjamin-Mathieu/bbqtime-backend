@@ -60,8 +60,18 @@ const event_participate = (req, res) => {
     });
 }
 
-// GET: public events
-const event_public = (req, res) => {
+// Get: all public events
+const event_public_all = async (req, res) => {
+  try {
+    const publicEvents = await Event.findAll({ where: { private: 0 } });
+    res.status(200).send({ publicEvents });
+  } catch (error) {
+    res.sendStatus(500).send({ "message": `Une erreur s'est produite ${error}` });
+  }
+}
+
+// GET: public events with pagination
+const event_public_pagination = (req, res) => {
   let currentPage = parseInt(req.params.page);
   const size = 4;
   let offset = (currentPage - 1) * size;
@@ -574,7 +584,8 @@ const event_addAssociate = async (req, res) => {
 
 module.exports = {
   event_archive,
-  event_public,
+  event_public_all,
+  event_public_pagination,
   event_participate,
   event_my_events_and_associate_events,
   event_manage,
