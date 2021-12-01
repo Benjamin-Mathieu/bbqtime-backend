@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const { Op } = require("sequelize");
 const fs = require("fs");
 const qrcode = require("qrcode");
+const axios = require('axios');
 
 // Services
 const email = require("../services/email");
@@ -63,7 +64,15 @@ const event_participate = (req, res) => {
 // Get: all public events
 const event_public_all = async (req, res) => {
   try {
-    const publicEvents = await Event.findAll({ where: { private: 0 } });
+    const publicEvents = await Event.findAll({
+      where:
+      {
+        private: 0,
+        date: {
+          [Op.gte]: new Date
+        }
+      }
+    });
     res.status(200).send({ publicEvents });
   } catch (error) {
     res.sendStatus(500).send({ "message": `Une erreur s'est produite ${error}` });
@@ -84,7 +93,7 @@ const event_public_pagination = (req, res) => {
     })
       .then(events => {
         if (events === null) {
-          res.status(200).send({ "message": "Pas d'évènement à afficher " });
+          res.status(200).send({ "message": "Pas d'événement à afficher " });
         }
 
         let totalPages = Math.ceil(events.count / size);
@@ -112,7 +121,7 @@ const event_public_pagination = (req, res) => {
     })
       .then(events => {
         if (events === null) {
-          res.status(200).send({ "message": "Pas d'évènement à afficher " });
+          res.status(200).send({ "message": "Pas d'événement à afficher " });
         }
 
         let totalPages = Math.ceil(events.count / size);
@@ -272,12 +281,12 @@ const event_join = async (req, res) => {
 
     if (event) {
       if (event.date < actual_date) {
-        res.status(400).send({ "message": "L'évènement n'est plus joignable" });
+        res.status(400).send({ "message": "L'événement n'est plus joignable" });
       } else {
-        res.status(200).send({ "message": "Evènement rejoint", "event": event });
+        res.status(200).send({ "message": "Événement rejoint", "event": event });
       }
     } else {
-      res.status(400).send({ "message": "Aucun évènement correspondant" });
+      res.status(400).send({ "message": "Aucun événement correspondant" });
     }
   } catch (error) {
     res.status(500).send({ "message": `Une erreur s'est produite ${error}` });
@@ -336,7 +345,7 @@ const event_duplicate = async (req, res) => {
 
   try {
     const event_duplicated = await Event.findByPk(new_event.id);
-    res.status(201).send({ "message": "Evènement copié avec succés", "event": event_duplicated });
+    res.status(201).send({ "message": "Événement copié avec succés", "event": event_duplicated });
 
   } catch (error) {
     res.status(400).send({ "message": `Une erreur s'est produite pendant la copie: ${error}` });
@@ -346,6 +355,13 @@ const event_duplicate = async (req, res) => {
 
 // POST: new event
 const event_post = async (req, res) => {
+  const urlApiGouv = encodeURI('https://api-adresse.data.gouv.fr/search/?q=' + `${req.body.address}+${req.body.city}&postcode=${req.body.zipcode}&limit=1`);
+  let latitude, longitude;
+  await axios.get(urlApiGouv)
+    .then(resp => {
+      latitude = resp.data.features[0].geometry.coordinates[1];
+      longitude = resp.data.features[0].geometry.coordinates[0];
+    });
 
   const event = await Event.create({
     user_id: req.userData.id,
@@ -358,7 +374,9 @@ const event_post = async (req, res) => {
     description: req.body.description,
     photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
     private: req.body.private,
-    qrcode: ""
+    qrcode: "",
+    latitude: latitude,
+    longitude: longitude
   });
 
   if (event) {
@@ -366,15 +384,23 @@ const event_post = async (req, res) => {
     const new_password = event.id.toString() + "-" + event.password;
     const qrc = await qrcode.toDataURL(new_password, { width: 500 });
     await event.update({ qrcode: qrc, password: new_password });
-    res.status(201).send({ "message": "Evènement crée avec succés", "event": event });
+    res.status(201).send({ "message": "Événement crée avec succés", "event": event });
   } else {
-    res.status(500).send({ "message": `Une erreur s'est produite pendant la création de l'évènement` });
+    res.status(500).send({ "message": `Une erreur s'est produite pendant la création de l'événement` });
   }
 }
 
 // PUT: event
 const event_put = async (req, res) => {
   const event = await Event.findByPk(req.body.id, { where: { user_id: req.userData.id } });
+  const urlApiGouv = encodeURI('https://api-adresse.data.gouv.fr/search/?q=' + `${req.body.address}+${req.body.city}&postcode=${req.body.zipcode}&limit=1`);
+
+  let latitude, longitude;
+  await axios.get(urlApiGouv)
+    .then(resp => {
+      latitude = resp.data.features[0].geometry.coordinates[1];
+      longitude = resp.data.features[0].geometry.coordinates[0];
+    });
 
   if (event) {
     try {
@@ -392,10 +418,12 @@ const event_put = async (req, res) => {
           description: req.body.description,
           photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
           private: req.body.private,
-          qrcode: qrc
+          qrcode: qrc,
+          latitude: latitude,
+          longitude: longitude
         });
 
-        res.status(200).send({ "message": 'Evènement mis à jour', "event": update_event });
+        res.status(200).send({ "message": 'Événement mis à jour', "event": update_event });
       } else {
         const update_event = await event.update({
           name: req.body.name,
@@ -406,16 +434,18 @@ const event_put = async (req, res) => {
           description: req.body.description,
           photo_url: process.env.URL_BACK + "/events/pictures/" + req.file.filename,
           private: req.body.private,
+          latitude: latitude,
+          longitude: longitude
         });
 
-        res.status(200).send({ "message": 'Evènement mis à jour', "event": update_event });
+        res.status(200).send({ "message": 'Événement mis à jour', "event": update_event });
       }
 
     } catch (error) {
       res.status(500).send({ "message": `Une erreur s'est produite ${error}` });
     }
   } else {
-    res.status(404).send({ "message": `L'évènement n'existe pas` });
+    res.status(404).send({ "message": `L'événement n'existe pas` });
   }
 }
 
@@ -437,21 +467,21 @@ const event_delete = async (req, res) => {
   })
     .then(event => {
       if (!event) {
-        return res.status(404).send({ "message": "L'évènement n'existe pas" });
+        return res.status(404).send({ "message": "L'événement n'existe pas" });
       }
 
       if (event && (event.user_id !== req.userData.id)) {
-        return res.status(401).send({ "message": "Vous n'avez pas les droits pour supprimer cet évènement" });
+        return res.status(401).send({ "message": "Vous n'avez pas les droits pour supprimer cet événement" });
       }
 
       if (event && (event.user_id === req.userData.id) && event.orders.length > 0) {
-        return res.status(400).send({ "message": "Suppression de l'évènement impossible car des commandes sont déjà en cours" });
+        return res.status(400).send({ "message": "Suppression de l'événement impossible car des commandes sont déjà en cours" });
       } else {
         Event.destroy({
           where: { id: event.id }
         })
           .then(() => {
-            res.status(200).send({ "message": "Evènement supprimé" });
+            res.status(200).send({ "message": "Événement supprimé" });
           })
           .catch(err => res.status(400).send({ "message": `Erreur pendant la suppression: ${err}` }));
       }
@@ -578,7 +608,7 @@ const event_addAssociate = async (req, res) => {
         })
     }
   } else {
-    res.status(400).send({ "message": `Vous ne pouvez pas ajouter un administrateur sur cet évènement` });
+    res.status(400).send({ "message": `Vous ne pouvez pas ajouter un administrateur sur cet événement` });
   }
 }
 

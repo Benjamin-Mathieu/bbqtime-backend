@@ -22,7 +22,7 @@ const serviceNotification = {
 
             const data = {
                 app_id: process.env.APPID_ONESIGNAL,
-                contents: { "en": `Une nouvelle commande a été passée sur votre évènement ${event.name}` },
+                contents: { "en": `Une nouvelle commande a été passée sur votre événement ${event.name}` },
                 include_external_user_ids: ids
             };
 

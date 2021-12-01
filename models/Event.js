@@ -60,6 +60,12 @@ const Event = db.define('event', {
     },
     qrcode: {
         type: DataTypes.TEXT
+    },
+    longitude: {
+        type: DataTypes.STRING
+    },
+    latitude: {
+        type: DataTypes.STRING
     }
 },
     { paranoid: true }

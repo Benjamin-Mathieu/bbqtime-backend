@@ -27,7 +27,7 @@ const plat_post = (req, res) => {
     })
         .then(result => {
             res.status(201).send({
-                "message": "Plat ajouté à l'évènement !",
+                "message": "Plat ajouté à l'événement !",
                 "plat": result
             })
         })
