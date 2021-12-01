@@ -1,7 +1,16 @@
 {
-  "name": "bbqtime-back",
+  "name": "bbqtime-api",
   "version": "0.0.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Benjamin-Mathieu/bbqtime-backend"
+  },
+  "author": "Benjamin Mathieu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Benjamin-Mathieu/bbqtime-backend/issues"
+  },
   "scripts": {
     "start": "nodemon ./bin/www"
   },
