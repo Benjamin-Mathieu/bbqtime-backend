@@ -80,7 +80,6 @@ const serviceNotification = {
                 headers,
                 data
             });
-            console.log(req);
         } catch (error) {
             throw error;
         }

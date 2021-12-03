@@ -4,8 +4,6 @@ const fs = require("fs");
 
 router.get("/sponsors/urls", async (req, res) => {
     const path = process.env.IMG_SPONSOR_PATH;
-    console.log("path", path, typeof path);
-
     let array_files = [];
 
     try {
@@ -22,9 +20,7 @@ router.get("/sponsors/urls", async (req, res) => {
 });
 
 router.get("/sponsors/:filename", async (req, res) => {
-    console.log("params", req.params.filename);
     const path = process.env.IMG_SPONSOR_PATH + req.params.filename;
-    console.log("path", path);
 
     try {
         fs.readFile(path, (err, data) => {

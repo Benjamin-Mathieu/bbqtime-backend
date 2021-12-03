@@ -20,7 +20,7 @@ const order_listing = (req, res) => {
             res.status(200).send({ "orders": orders });
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
@@ -38,7 +38,7 @@ const order_get = (req, res) => {
             res.status(200).send({ "order": order });
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
@@ -111,7 +111,7 @@ const order_post = (req, res) => {
             res.status(201).send({ "message": "Commande effectuée !", "order": newOrder });
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
@@ -127,7 +127,7 @@ const order_delete = (req, res) => {
             res.status(200).send({ "message": "Commande supprimée !", "order": order })
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }

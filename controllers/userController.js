@@ -63,7 +63,7 @@ const user_delete = (req, res) => {
             res.status(200).send({ "message": "User deleted" })
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 }
@@ -98,7 +98,7 @@ const user_login = (req, res) => {
             }
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
 }

@@ -47,7 +47,7 @@ const categorie_put = (req, res) => {
       res.status(200).send({ "message": "Catégorie mis à jour !", "categorie": categorie });
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     })
 }
@@ -63,7 +63,7 @@ const categorie_delete = (req, res) => {
       res.status(200).send({ "message": "Catégorie supprimée !", "plat": plat })
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
     });
 }

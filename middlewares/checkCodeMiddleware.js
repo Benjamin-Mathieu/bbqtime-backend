@@ -21,7 +21,7 @@ function checkCode(req, res, next) {
                 });
             }
         })
-        .catch(err => { console.log(err) });
+        .catch(err => { console.error(err) });
 }
 
 module.exports = {

@@ -8,12 +8,10 @@ const upload = (file) => {
                 cb(null, './uploads/')
             },
             filename: function (req, file, cb) {
-                console.log("File Object", file);
                 let ext = '';
                 if (file.originalname.split('.').length > 1) {
                     ext = path.extname(file.originalname);
                 }
-                console.log('ext', ext);
                 cb(null, file.fieldname + '-' + Date.now() + ext)
             }
         })

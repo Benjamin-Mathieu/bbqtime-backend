@@ -9,7 +9,7 @@ const plat_get = (req, res) => {
             res.status(200).send({ plats })
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 };
@@ -32,7 +32,7 @@ const plat_post = (req, res) => {
             })
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         });
 };
@@ -76,7 +76,6 @@ const plat_put = async (req, res) => {
 const plat_delete = async (req, res) => {
     const plat = await Plat.findByPk(req.params.id);
     const img = plat.photo_url.split("/");
-    console.log("img name =>", img[5]);
     try {
         fs.unlinkSync(`${process.env.IMAGE_PATH}${img[5]}`); // file removed
     } catch (err) {
@@ -92,7 +91,7 @@ const plat_delete = async (req, res) => {
             res.status(200).send({ "message": "Plat supprimé !", "plat": plat })
         })
         .catch(err => {
-            console.log(err);
+            console.error(err);
             res.status(500).send({ "message": `Une erreur s'est produite ${err}` });
         })
 };
