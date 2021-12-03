@@ -63,6 +63,7 @@ const event_participate = (req, res) => {
 
 // Get: all public events
 const event_public_all = async (req, res) => {
+  let evt = [];
   try {
     const publicEvents = await Event.findAll({
       where:
@@ -71,9 +72,17 @@ const event_public_all = async (req, res) => {
         date: {
           [Op.gte]: new Date
         }
+      },
+      include: Categorie
+    });
+
+    publicEvents.forEach(publicEvent => {
+      if (publicEvent.categories.length > 0) {
+        evt.push(publicEvent);
       }
     });
-    res.status(200).send({ publicEvents });
+
+    res.status(200).send({ "publicEvents": evt });
   } catch (error) {
     res.sendStatus(500).send({ "message": `Une erreur s'est produite ${error}` });
   }
@@ -310,7 +319,9 @@ const event_duplicate = async (req, res) => {
     description: event.description,
     photo_url: event.photo_url,
     private: event.private,
-    qrcode: ""
+    qrcode: "",
+    latitude: event.latitude,
+    longitude: event.longitude
   });
 
   // Update password & qrcode
