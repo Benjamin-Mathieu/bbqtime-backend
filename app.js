@@ -7,6 +7,7 @@ const ordersRouter = require('./routes/orders');
 const usersRouter = require('./routes/users');
 const eventsRouter = require('./routes/events');
 const platsRouter = require('./routes/plats');
+const imgRouter = require('./services/img-sponsors');
 
 const app = express();
 app.use(logger('dev'));
@@ -33,6 +34,7 @@ app.use('/orders', ordersRouter);
 app.use('/users', usersRouter);
 app.use('/events', eventsRouter);
 app.use('/plats', platsRouter);
+app.use('/img', imgRouter);
 
 // Catch invalid url
 app.use((req, res) => {
