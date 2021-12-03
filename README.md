@@ -1,6 +1,8 @@
 # BBQ Time API
 
 ## Project setup
+Change informations of database in config/database.js 
+
  `npm install`
 
 ## Run API
