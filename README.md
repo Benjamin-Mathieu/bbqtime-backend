@@ -15,4 +15,4 @@ const { Sequelize } = require('sequelize');`
 - `npm start` or `nodemon ip_of_your_choice`
 
 ## Database SQL 
-[Download](##%20Database:%20%20https://drive.google.com/file/d/1dUXeOzGpG8bPb2EAVVT-M2WCRmhcbJSI/view)
+[Download](https://drive.google.com/file/d/1dUXeOzGpG8bPb2EAVVT-M2WCRmhcbJSI/view)
