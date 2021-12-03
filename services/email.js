@@ -8,6 +8,13 @@ const headers = {
     accept: "application/json",
 };
 const email = {
+
+    /**
+     * 
+     * @param {string} mailUser 
+     * @param {int} event_id 
+    */
+
     sendEmailInvitation: async (mailUser, event_id) => {
         try {
             const event = await Event.findByPk(event_id, { include: { model: User } });
@@ -44,6 +51,14 @@ const email = {
             throw error;
         }
     },
+
+    /**
+     * 
+     * @param {string} mailUser 
+     * @param {int} event_id 
+     * @param {Model} new_user
+     * @param {int} pass_new_user
+    */
 
     sendEmailPreventAdminAdd: async (mailUser, event_id, new_user, pass_new_user) => {
         try {
@@ -88,6 +103,13 @@ const email = {
             throw error;
         }
     },
+
+    /**
+     * 
+     * @param {string} mailUser 
+     * @param {int} codeInDb
+     * @returns {int} Code to reset password
+    */
 
     sendEmailResetPassword: async (mailUser, codeInDb) => {
         try {
@@ -136,6 +158,13 @@ const email = {
             throw error;
         }
     },
+
+    /**
+     * 
+     * @param {string} email 
+     * @param {string} subject
+     * @param {string} htmlContent
+    */
 
     async sendEmail(email, subject, htmlContent) {
         try {

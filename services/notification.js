@@ -11,6 +11,11 @@ const headers = {
 
 
 const serviceNotification = {
+
+    /** 
+     * @param {int} event_id 
+    */
+
     sendNotificationNewOrder: async (event_id) => {
         try {
             const event = await Event.findOne({ where: { id: event_id }, include: [Associate] });
@@ -32,6 +37,10 @@ const serviceNotification = {
         }
     },
 
+    /** 
+     * @param {int} order_id
+    */
+
     sendNotificationOrderStatus: async (order_id) => {
         try {
             const order = await Order.findByPk(order_id, { include: { model: User } });
@@ -48,6 +57,17 @@ const serviceNotification = {
             throw error;
         }
     },
+
+    /** 
+    * @typedef {Object} data
+    * @property {String} app_id
+    * @typedef {{"lang": String}} contents  
+    * @property {Array[String]} include_external_user_ids
+    */
+
+    /** 
+     * @param {object} data
+    */
 
     sendNotification: async (data) => {
         try {
